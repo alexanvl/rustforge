@@ -10,9 +10,8 @@ use winit::{
 use wgpu::util::DeviceExt;
 use rustforge_core::prelude::*;
 use rustforge_graphics::prelude::*;
-use glam::{Vec3, Mat4, Quat};
+use glam::{Vec3, Vec2, Mat4, Quat};
 use std::time::Instant;
-use std::collections::HashSet;
 use bytemuck::{Pod, Zeroable};
 
 const WIDTH: u32 = 800;
@@ -74,9 +73,7 @@ struct SolarSystemDemo {
     // Camera controls
     camera_speed: f32,
     mouse_sensitivity: f32,
-    keys_pressed: HashSet<KeyCode>,
-    mouse_pressed: bool,
-    last_mouse_pos: (f64, f64),
+    input_state: rustforge_input::InputState,
 }
 
 impl SolarSystemDemo {
@@ -371,9 +368,7 @@ impl SolarSystemDemo {
             // Camera controls
             camera_speed: 10.0,
             mouse_sensitivity: 0.002,
-            keys_pressed: HashSet::new(),
-            mouse_pressed: false,
-            last_mouse_pos: (0.0, 0.0),
+            input_state: rustforge_input::InputState::new(),
         })
     }
 
@@ -439,11 +434,14 @@ impl SolarSystemDemo {
 
         // Handle camera movement
         self.handle_camera_movement(1.0 / 60.0); // Assume 60 FPS
+
+        // Clear frame state for input
+        self.input_state.clear_frame_state();
     }
 
     fn handle_camera_movement(&mut self, delta_time: f32) {
-        let speed = if self.keys_pressed.contains(&KeyCode::LShift) ||
-                       self.keys_pressed.contains(&KeyCode::RShift) {
+        let speed = if self.input_state.is_key_pressed(KeyCode::LShift) ||
+                       self.input_state.is_key_pressed(KeyCode::RShift) {
             self.camera_speed * 3.0 // Boost speed with shift
         } else {
             self.camera_speed
@@ -452,23 +450,23 @@ impl SolarSystemDemo {
         // Calculate movement direction
         let mut movement = Vec3::ZERO;
 
-        if self.keys_pressed.contains(&KeyCode::W) {
+        if self.input_state.is_key_pressed(KeyCode::W) {
             movement += self.camera.transform.forward();
         }
-        if self.keys_pressed.contains(&KeyCode::S) {
+        if self.input_state.is_key_pressed(KeyCode::S) {
             movement -= self.camera.transform.forward();
         }
-        if self.keys_pressed.contains(&KeyCode::A) {
+        if self.input_state.is_key_pressed(KeyCode::A) {
             movement -= self.camera.transform.right();
         }
-        if self.keys_pressed.contains(&KeyCode::D) {
+        if self.input_state.is_key_pressed(KeyCode::D) {
             movement += self.camera.transform.right();
         }
-        if self.keys_pressed.contains(&KeyCode::Space) {
+        if self.input_state.is_key_pressed(KeyCode::Space) {
             movement += Vec3::Y; // Move up
         }
-        if self.keys_pressed.contains(&KeyCode::LControl) ||
-           self.keys_pressed.contains(&KeyCode::C) {
+        if self.input_state.is_key_pressed(KeyCode::LControl) ||
+           self.input_state.is_key_pressed(KeyCode::C) {
             movement -= Vec3::Y; // Move down
         }
 
@@ -478,9 +476,21 @@ impl SolarSystemDemo {
             self.camera.transform.position += movement * speed * delta_time;
         }
 
-        // Handle mouse look (simple version for now)
-        if self.mouse_pressed {
-            // This will be implemented when we get the mouse delta working
+        // Handle mouse look
+        let mouse_delta = self.input_state.mouse_delta();
+        if self.input_state.is_mouse_button_pressed(MouseButton::Left) &&
+           mouse_delta.length_squared() > 0.0 {
+            let yaw = -mouse_delta.x * self.mouse_sensitivity;
+            let pitch = -mouse_delta.y * self.mouse_sensitivity;
+
+            // Apply yaw (around Y axis)
+            let yaw_rotation = Quat::from_rotation_y(yaw);
+            self.camera.transform.rotation = yaw_rotation * self.camera.transform.rotation;
+
+            // Apply pitch (around local X axis)
+            let right = self.camera.transform.right();
+            let pitch_rotation = Quat::from_axis_angle(right, pitch);
+            self.camera.transform.rotation = pitch_rotation * self.camera.transform.rotation;
         }
     }
 
@@ -590,45 +600,19 @@ impl SolarSystemDemo {
                         }
                         WindowEvent::KeyboardInput { input, .. } => {
                             if let Some(key) = input.virtual_keycode {
-                                match input.state {
-                                    ElementState::Pressed => {
-                                        self.keys_pressed.insert(key);
-                                        // ESC to quit
-                                        if key == KeyCode::Escape {
-                                            *control_flow = ControlFlow::Exit;
-                                        }
-                                    }
-                                    ElementState::Released => {
-                                        self.keys_pressed.remove(&key);
-                                    }
+                                self.input_state.handle_keyboard(key, input.state);
+
+                                // ESC to quit
+                                if key == KeyCode::Escape && input.state == ElementState::Pressed {
+                                    *control_flow = ControlFlow::Exit;
                                 }
                             }
                         }
                         WindowEvent::MouseInput { button, state, .. } => {
-                            if *button == MouseButton::Left {
-                                self.mouse_pressed = *state == ElementState::Pressed;
-                            }
+                            self.input_state.handle_mouse_button(*button, *state);
                         }
                         WindowEvent::CursorMoved { position, .. } => {
-                            // Simple mouse delta calculation
-                            let delta_x = position.x - self.last_mouse_pos.0;
-                            let delta_y = position.y - self.last_mouse_pos.1;
-
-                            if self.mouse_pressed {
-                                let yaw = -delta_x as f32 * self.mouse_sensitivity;
-                                let pitch = -delta_y as f32 * self.mouse_sensitivity;
-
-                                // Apply yaw (around Y axis)
-                                let yaw_rotation = Quat::from_rotation_y(yaw);
-                                self.camera.transform.rotation = yaw_rotation * self.camera.transform.rotation;
-
-                                // Apply pitch (around local X axis)
-                                let right = self.camera.transform.right();
-                                let pitch_rotation = Quat::from_axis_angle(right, pitch);
-                                self.camera.transform.rotation = pitch_rotation * self.camera.transform.rotation;
-                            }
-
-                            self.last_mouse_pos = (position.x, position.y);
+                            self.input_state.handle_mouse_motion(*position);
                         }
                         _ => {}
                     }
