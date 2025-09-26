@@ -28,7 +28,7 @@ specs-derive = "0.4"
 # Graphics
 vulkano = "0.34"
 vulkano-shaders = "0.34"
-winit = "0.29"
+winit = "0.28"
 ash = "0.37"
 shaderc = "0.8"
 image = "0.24"

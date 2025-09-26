@@ -1,0 +1,20 @@
+[package]
+name = "solar-system"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "solar-system"
+path = "src/main.rs"
+
+[dependencies]
+rustforge-core = { path = "../../rustforge-core" }
+rustforge-graphics = { path = "../../rustforge-graphics" }
+rustforge-input = { path = "../../rustforge-input" }
+
+winit = "0.28"
+wgpu = "0.15"
+pollster = "0.3"
+glam = "0.24"
+env_logger = "0.10"
+bytemuck = "1.23"

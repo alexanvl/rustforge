@@ -1,8 +1,7 @@
 //! Input handling module for RustForge
 
 use std::collections::HashSet;
-use winit::event::{ElementState, MouseButton};
-use winit::keyboard::KeyCode;
+use winit::event::{ElementState, MouseButton, VirtualKeyCode as KeyCode};
 use winit::dpi::PhysicalPosition;
 use glam::Vec2;
 
