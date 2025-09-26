@@ -1,0 +1,16 @@
+[package]
+name = "rustforge-physics"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+rustforge-core = { path = "../rustforge-core" }
+rustforge-ecs = { path = "../rustforge-ecs" }
+specs = { workspace = true }
+specs-derive = { workspace = true }
+rapier3d = { workspace = true }
+glam = { workspace = true }
+log = { workspace = true }
+thiserror = { workspace = true }

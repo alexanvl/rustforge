@@ -1,0 +1,13 @@
+[package]
+name = "rustforge-audio"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+rustforge-core = { path = "../rustforge-core" }
+rustforge-ecs = { path = "../rustforge-ecs" }
+rodio = { workspace = true }
+glam = { workspace = true }
+log = { workspace = true }

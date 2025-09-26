@@ -1,0 +1,15 @@
+[package]
+name = "physics-console-demo"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "physics-console-demo"
+path = "src/main.rs"
+
+[dependencies]
+rustforge-core = { path = "../../rustforge-core" }
+rustforge-physics = { path = "../../rustforge-physics" }
+
+glam = "0.24"
+env_logger = "0.10"

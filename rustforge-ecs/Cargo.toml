@@ -1,0 +1,15 @@
+[package]
+name = "rustforge-ecs"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+rustforge-core = { path = "../rustforge-core" }
+specs = { workspace = true }
+specs-derive = { workspace = true }
+glam = { workspace = true }
+log = { workspace = true }
+thiserror = { workspace = true }
+serde = { workspace = true }

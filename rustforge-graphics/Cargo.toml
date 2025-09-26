@@ -1,0 +1,27 @@
+[package]
+name = "rustforge-graphics"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+rustforge-core = { path = "../rustforge-core" }
+rustforge-ecs = { path = "../rustforge-ecs" }
+specs = { workspace = true }
+specs-derive = { workspace = true }
+vulkano = { workspace = true }
+vulkano-shaders = { workspace = true }
+winit = { workspace = true }
+ash = { workspace = true, optional = true }
+shaderc = { workspace = true }
+image = { workspace = true }
+glam = { workspace = true }
+bytemuck = { workspace = true }
+log = { workspace = true }
+thiserror = { workspace = true }
+pixels = { workspace = true }
+
+[features]
+default = []
+low-level = ["ash"]

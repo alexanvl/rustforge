@@ -1,0 +1,22 @@
+[package]
+name = "rustforge-engine"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+rustforge-core = { path = "../rustforge-core" }
+rustforge-ecs = { path = "../rustforge-ecs" }
+rustforge-graphics = { path = "../rustforge-graphics" }
+rustforge-physics = { path = "../rustforge-physics" }
+rustforge-input = { path = "../rustforge-input" }
+rustforge-audio = { path = "../rustforge-audio" }
+
+winit = { workspace = true }
+specs = { workspace = true }
+glam = { workspace = true }
+log = { workspace = true }
+env_logger = { workspace = true }
+thiserror = { workspace = true }
+anyhow = { workspace = true }

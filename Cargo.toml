@@ -1,0 +1,60 @@
+[workspace]
+members = [
+    "rustforge-core",
+    "rustforge-ecs",
+    "rustforge-graphics",
+    "rustforge-physics",
+    "rustforge-input",
+    "rustforge-audio",
+    "rustforge-engine",
+    "examples/*",
+]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+authors = ["RustForge Team"]
+license = "MIT OR Apache-2.0"
+
+[workspace.dependencies]
+# Math
+glam = "0.24"
+
+# ECS
+specs = "0.20"
+specs-derive = "0.4"
+
+# Graphics
+vulkano = "0.34"
+vulkano-shaders = "0.34"
+winit = "0.29"
+ash = "0.37"
+shaderc = "0.8"
+image = "0.24"
+pixels = "0.13"
+
+# Physics
+rapier3d = "0.17"
+
+# Audio
+rodio = "0.17"
+
+# Serialization
+ron = "0.8"
+serde = { version = "1.0", features = ["derive"] }
+
+# Logging
+log = "0.4"
+env_logger = "0.10"
+
+# Error handling
+thiserror = "1.0"
+anyhow = "1.0"
+
+# Async
+tokio = { version = "1.35", features = ["full"] }
+
+# Utilities
+bytemuck = "1.14"
+rayon = "1.8"
