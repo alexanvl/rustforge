@@ -7,7 +7,8 @@ members = [
     "rustforge-input",
     "rustforge-audio",
     "rustforge-engine",
-    "examples/*",
+    "rustforge-scene-graph",
+    "examples/*", "rustforge-app",
 ]
 resolver = "2"
 

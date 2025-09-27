@@ -1,5 +1,5 @@
 [package]
-name = "rustforge-input"
+name = "rustforge-app"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
@@ -7,8 +7,13 @@ license.workspace = true
 
 [dependencies]
 rustforge-core = { path = "../rustforge-core" }
-rustforge-ecs = { path = "../rustforge-ecs" }
 rustforge-graphics = { path = "../rustforge-graphics" }
+rustforge-input = { path = "../rustforge-input" }
+
 winit = { workspace = true }
+wgpu = { workspace = true }
+pollster = "0.3"
 glam = { workspace = true }
 log = { workspace = true }
+env_logger = { workspace = true }
+bytemuck = { workspace = true }

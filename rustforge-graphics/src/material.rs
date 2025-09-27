@@ -2,10 +2,20 @@
 
 use glam::{Vec3, Vec4};
 
+/// Material type enumeration
+#[derive(Debug, Clone)]
+pub enum MaterialType {
+    /// Standard PBR material
+    Pbr,
+    /// Cube map material for skyboxes
+    Cubemap,
+}
+
 /// Material properties for rendering
 #[derive(Debug, Clone)]
 pub struct Material {
     pub name: String,
+    pub material_type: MaterialType,
     pub albedo: Vec4,
     pub metallic: f32,
     pub roughness: f32,
@@ -13,12 +23,15 @@ pub struct Material {
     pub albedo_texture: Option<String>,
     pub normal_texture: Option<String>,
     pub metallic_roughness_texture: Option<String>,
+    /// For cubemap materials - array of 6 face textures
+    pub cubemap_faces: Option<[String; 6]>,
 }
 
 impl Default for Material {
     fn default() -> Self {
         Self {
             name: "Default".into(),
+            material_type: MaterialType::Pbr,
             albedo: Vec4::ONE,
             metallic: 0.0,
             roughness: 0.5,
@@ -26,6 +39,7 @@ impl Default for Material {
             albedo_texture: None,
             normal_texture: None,
             metallic_roughness_texture: None,
+            cubemap_faces: None,
         }
     }
 }
@@ -57,6 +71,16 @@ impl Material {
             ..Default::default()
         }
     }
+
+    /// Create a cubemap material for skyboxes
+    pub fn cubemap(name: impl Into<String>, faces: [String; 6]) -> Self {
+        Self {
+            name: name.into(),
+            material_type: MaterialType::Cubemap,
+            cubemap_faces: Some(faces),
+            ..Default::default()
+        }
+    }
 }
 
 #[cfg(test)]
@@ -69,6 +93,7 @@ mod tests {
         let material = Material::default();
 
         assert_eq!(material.name, "Default");
+        assert!(matches!(material.material_type, MaterialType::Pbr));
         assert_eq!(material.albedo, Vec4::ONE);
         assert_eq!(material.metallic, 0.0);
         assert_eq!(material.roughness, 0.5);
@@ -76,6 +101,7 @@ mod tests {
         assert!(material.albedo_texture.is_none());
         assert!(material.normal_texture.is_none());
         assert!(material.metallic_roughness_texture.is_none());
+        assert!(material.cubemap_faces.is_none());
     }
 
     #[test]
@@ -83,6 +109,7 @@ mod tests {
         let material = Material::new("TestMaterial");
 
         assert_eq!(material.name, "TestMaterial");
+        assert!(matches!(material.material_type, MaterialType::Pbr));
         assert_eq!(material.albedo, Vec4::ONE); // Should inherit from default
         assert_eq!(material.metallic, 0.0);
         assert_eq!(material.roughness, 0.5);
@@ -94,6 +121,7 @@ mod tests {
         let material = Material::colored("OrangeMaterial", color);
 
         assert_eq!(material.name, "OrangeMaterial");
+        assert!(matches!(material.material_type, MaterialType::Pbr));
         assert_eq!(material.albedo, color.extend(1.0));
         assert_eq!(material.metallic, 0.0); // Should inherit from default
         assert_eq!(material.roughness, 0.5);
@@ -107,10 +135,31 @@ mod tests {
         let material = Material::metallic("SilverMaterial", color, metallic, roughness);
 
         assert_eq!(material.name, "SilverMaterial");
+        assert!(matches!(material.material_type, MaterialType::Pbr));
         assert_eq!(material.albedo, color.extend(1.0));
         assert_eq!(material.metallic, metallic);
         assert_eq!(material.roughness, roughness);
         assert_eq!(material.emissive, Vec3::ZERO); // Should inherit from default
+    }
+
+    #[test]
+    fn test_material_cubemap() {
+        let faces = [
+            "right.jpg".to_string(),
+            "left.jpg".to_string(),
+            "top.jpg".to_string(),
+            "bottom.jpg".to_string(),
+            "front.jpg".to_string(),
+            "back.jpg".to_string(),
+        ];
+        let material = Material::cubemap("SkyboxMaterial", faces.clone());
+
+        assert_eq!(material.name, "SkyboxMaterial");
+        assert!(matches!(material.material_type, MaterialType::Cubemap));
+        assert_eq!(material.cubemap_faces, Some(faces));
+        // Other properties should be default
+        assert_eq!(material.albedo, Vec4::ONE);
+        assert_eq!(material.metallic, 0.0);
     }
 
     #[test]

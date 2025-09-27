@@ -1,11 +1,7 @@
 [package]
-name = "solar-system"
+name = "skybox-demo"
 version = "0.1.0"
 edition = "2021"
-
-[[bin]]
-name = "solar-system"
-path = "src/main.rs"
 
 [dependencies]
 rustforge-app = { path = "../../rustforge-app" }
@@ -13,6 +9,6 @@ rustforge-core = { path = "../../rustforge-core" }
 rustforge-graphics = { path = "../../rustforge-graphics" }
 rustforge-input = { path = "../../rustforge-input" }
 bytemuck = { version = "1.14", features = ["derive"] }
-glam = { workspace = true }
-log = { workspace = true }
+glam = "0.24"
+log = "0.4"
 wgpu = { workspace = true }
