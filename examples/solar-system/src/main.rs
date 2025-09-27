@@ -2,9 +2,9 @@
 //!
 //! This demonstrates instanced rendering and orbital mechanics with minimal boilerplate.
 
-use rustforge_app::prelude::*;
-use glam::{Vec3, Mat4};
 use bytemuck::{Pod, Zeroable};
+use glam::{Mat4, Vec3};
+use rustforge_app::prelude::*;
 use std::time::Instant;
 
 #[repr(C)]
@@ -137,25 +137,29 @@ impl App for SolarSystemDemo {
         });
 
         // Create shader
-        let shader = ctx.device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label: Some("Solar System Shader"),
-            source: wgpu::ShaderSource::Wgsl(include_str!("solar_system.wgsl").into()),
-        });
+        let shader = ctx
+            .device
+            .create_shader_module(wgpu::ShaderModuleDescriptor {
+                label: Some("Solar System Shader"),
+                source: wgpu::ShaderSource::Wgsl(include_str!("solar_system.wgsl").into()),
+            });
 
         // Create bind group layout
-        let bind_group_layout = ctx.device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
-            entries: &[wgpu::BindGroupLayoutEntry {
-                binding: 0,
-                visibility: wgpu::ShaderStages::VERTEX_FRAGMENT,
-                ty: wgpu::BindingType::Buffer {
-                    ty: wgpu::BufferBindingType::Uniform,
-                    has_dynamic_offset: false,
-                    min_binding_size: None,
-                },
-                count: None,
-            }],
-            label: Some("bind_group_layout"),
-        });
+        let bind_group_layout =
+            ctx.device
+                .create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+                    entries: &[wgpu::BindGroupLayoutEntry {
+                        binding: 0,
+                        visibility: wgpu::ShaderStages::VERTEX_FRAGMENT,
+                        ty: wgpu::BindingType::Buffer {
+                            ty: wgpu::BufferBindingType::Uniform,
+                            has_dynamic_offset: false,
+                            min_binding_size: None,
+                        },
+                        count: None,
+                    }],
+                    label: Some("bind_group_layout"),
+                });
 
         let bind_group = ctx.device.create_bind_group(&wgpu::BindGroupDescriptor {
             layout: &bind_group_layout,
@@ -167,96 +171,101 @@ impl App for SolarSystemDemo {
         });
 
         // Create pipeline
-        let pipeline_layout = ctx.device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-            label: Some("Pipeline Layout"),
-            bind_group_layouts: &[&bind_group_layout],
-            push_constant_ranges: &[],
-        });
+        let pipeline_layout = ctx
+            .device
+            .create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+                label: Some("Pipeline Layout"),
+                bind_group_layouts: &[&bind_group_layout],
+                push_constant_ranges: &[],
+            });
 
-        let render_pipeline = ctx.device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-            label: Some("Render Pipeline"),
-            layout: Some(&pipeline_layout),
-            vertex: wgpu::VertexState {
-                module: &shader,
-                entry_point: Some("vs_main"),
-                buffers: &[
-                    PositionNormal::desc(),
-                    wgpu::VertexBufferLayout {
-                        array_stride: std::mem::size_of::<InstanceData>() as wgpu::BufferAddress,
-                        step_mode: wgpu::VertexStepMode::Instance,
-                        attributes: &[
-                            // Model matrix (4x4)
-                            wgpu::VertexAttribute {
-                                offset: 0,
-                                shader_location: 2,
-                                format: wgpu::VertexFormat::Float32x4,
-                            },
-                            wgpu::VertexAttribute {
-                                offset: std::mem::size_of::<[f32; 4]>() as wgpu::BufferAddress,
-                                shader_location: 3,
-                                format: wgpu::VertexFormat::Float32x4,
-                            },
-                            wgpu::VertexAttribute {
-                                offset: std::mem::size_of::<[f32; 8]>() as wgpu::BufferAddress,
-                                shader_location: 4,
-                                format: wgpu::VertexFormat::Float32x4,
-                            },
-                            wgpu::VertexAttribute {
-                                offset: std::mem::size_of::<[f32; 12]>() as wgpu::BufferAddress,
-                                shader_location: 5,
-                                format: wgpu::VertexFormat::Float32x4,
-                            },
-                            // Color
-                            wgpu::VertexAttribute {
-                                offset: std::mem::size_of::<[f32; 16]>() as wgpu::BufferAddress,
-                                shader_location: 6,
-                                format: wgpu::VertexFormat::Float32x3,
-                            },
-                            // Emissive
-                            wgpu::VertexAttribute {
-                                offset: std::mem::size_of::<[f32; 19]>() as wgpu::BufferAddress,
-                                shader_location: 7,
-                                format: wgpu::VertexFormat::Float32,
-                            },
-                        ],
-                    },
-                ],
-                compilation_options: Default::default(),
-            },
-            fragment: Some(wgpu::FragmentState {
-                module: &shader,
-                entry_point: Some("fs_main"),
-                targets: &[Some(wgpu::ColorTargetState {
-                    format: wgpu::TextureFormat::Bgra8UnormSrgb,
-                    blend: Some(wgpu::BlendState::REPLACE),
-                    write_mask: wgpu::ColorWrites::ALL,
-                })],
-                compilation_options: Default::default(),
-            }),
-            primitive: wgpu::PrimitiveState {
-                topology: wgpu::PrimitiveTopology::TriangleList,
-                strip_index_format: None,
-                front_face: wgpu::FrontFace::Ccw,
-                cull_mode: Some(wgpu::Face::Back),
-                polygon_mode: wgpu::PolygonMode::Fill,
-                unclipped_depth: false,
-                conservative: false,
-            },
-            depth_stencil: Some(wgpu::DepthStencilState {
-                format: wgpu::TextureFormat::Depth32Float,
-                depth_write_enabled: true,
-                depth_compare: wgpu::CompareFunction::Less,
-                stencil: wgpu::StencilState::default(),
-                bias: wgpu::DepthBiasState::default(),
-            }),
-            multisample: wgpu::MultisampleState {
-                count: 1,
-                mask: !0,
-                alpha_to_coverage_enabled: false,
-            },
-            multiview: None,
-            cache: None,
-        });
+        let render_pipeline = ctx
+            .device
+            .create_render_pipeline(&wgpu::RenderPipelineDescriptor {
+                label: Some("Render Pipeline"),
+                layout: Some(&pipeline_layout),
+                vertex: wgpu::VertexState {
+                    module: &shader,
+                    entry_point: Some("vs_main"),
+                    buffers: &[
+                        PositionNormal::desc(),
+                        wgpu::VertexBufferLayout {
+                            array_stride: std::mem::size_of::<InstanceData>()
+                                as wgpu::BufferAddress,
+                            step_mode: wgpu::VertexStepMode::Instance,
+                            attributes: &[
+                                // Model matrix (4x4)
+                                wgpu::VertexAttribute {
+                                    offset: 0,
+                                    shader_location: 2,
+                                    format: wgpu::VertexFormat::Float32x4,
+                                },
+                                wgpu::VertexAttribute {
+                                    offset: std::mem::size_of::<[f32; 4]>() as wgpu::BufferAddress,
+                                    shader_location: 3,
+                                    format: wgpu::VertexFormat::Float32x4,
+                                },
+                                wgpu::VertexAttribute {
+                                    offset: std::mem::size_of::<[f32; 8]>() as wgpu::BufferAddress,
+                                    shader_location: 4,
+                                    format: wgpu::VertexFormat::Float32x4,
+                                },
+                                wgpu::VertexAttribute {
+                                    offset: std::mem::size_of::<[f32; 12]>() as wgpu::BufferAddress,
+                                    shader_location: 5,
+                                    format: wgpu::VertexFormat::Float32x4,
+                                },
+                                // Color
+                                wgpu::VertexAttribute {
+                                    offset: std::mem::size_of::<[f32; 16]>() as wgpu::BufferAddress,
+                                    shader_location: 6,
+                                    format: wgpu::VertexFormat::Float32x3,
+                                },
+                                // Emissive
+                                wgpu::VertexAttribute {
+                                    offset: std::mem::size_of::<[f32; 19]>() as wgpu::BufferAddress,
+                                    shader_location: 7,
+                                    format: wgpu::VertexFormat::Float32,
+                                },
+                            ],
+                        },
+                    ],
+                    compilation_options: Default::default(),
+                },
+                fragment: Some(wgpu::FragmentState {
+                    module: &shader,
+                    entry_point: Some("fs_main"),
+                    targets: &[Some(wgpu::ColorTargetState {
+                        format: wgpu::TextureFormat::Bgra8UnormSrgb,
+                        blend: Some(wgpu::BlendState::REPLACE),
+                        write_mask: wgpu::ColorWrites::ALL,
+                    })],
+                    compilation_options: Default::default(),
+                }),
+                primitive: wgpu::PrimitiveState {
+                    topology: wgpu::PrimitiveTopology::TriangleList,
+                    strip_index_format: None,
+                    front_face: wgpu::FrontFace::Ccw,
+                    cull_mode: Some(wgpu::Face::Back),
+                    polygon_mode: wgpu::PolygonMode::Fill,
+                    unclipped_depth: false,
+                    conservative: false,
+                },
+                depth_stencil: Some(wgpu::DepthStencilState {
+                    format: wgpu::TextureFormat::Depth32Float,
+                    depth_write_enabled: true,
+                    depth_compare: wgpu::CompareFunction::Less,
+                    stencil: wgpu::StencilState::default(),
+                    bias: wgpu::DepthBiasState::default(),
+                }),
+                multisample: wgpu::MultisampleState {
+                    count: 1,
+                    mask: !0,
+                    alpha_to_coverage_enabled: false,
+                },
+                multiview: None,
+                cache: None,
+            });
 
         // Set initial camera position looking at the sun
         ctx.camera.transform.position = Vec3::new(20.0, 10.0, 20.0);
@@ -290,29 +299,34 @@ impl App for SolarSystemDemo {
             self.start_time.elapsed().as_secs_f32() * self.speed_multiplier
         };
 
-        let instances: Vec<InstanceData> = self.planets.iter_mut().map(|planet| {
-            if planet.orbital_radius > 0.0 {
-                let angle = elapsed * planet.orbital_speed;
-                planet.position = Vec3::new(
-                    planet.orbital_radius * angle.cos(),
-                    0.0,
-                    planet.orbital_radius * angle.sin(),
-                );
-            }
+        let instances: Vec<InstanceData> = self
+            .planets
+            .iter_mut()
+            .map(|planet| {
+                if planet.orbital_radius > 0.0 {
+                    let angle = elapsed * planet.orbital_speed;
+                    planet.position = Vec3::new(
+                        planet.orbital_radius * angle.cos(),
+                        0.0,
+                        planet.orbital_radius * angle.sin(),
+                    );
+                }
 
-            let scale = Mat4::from_scale(Vec3::splat(planet.radius));
-            let translation = Mat4::from_translation(planet.position);
-            let model = translation * scale;
+                let scale = Mat4::from_scale(Vec3::splat(planet.radius));
+                let translation = Mat4::from_translation(planet.position);
+                let model = translation * scale;
 
-            InstanceData {
-                model: model.to_cols_array_2d(),
-                color: planet.color,
-                emissive: if planet.emissive { 1.0 } else { 0.0 },
-            }
-        }).collect();
+                InstanceData {
+                    model: model.to_cols_array_2d(),
+                    color: planet.color,
+                    emissive: if planet.emissive { 1.0 } else { 0.0 },
+                }
+            })
+            .collect();
 
         // Update instance buffer
-        ctx.queue.write_buffer(&self.instance_buffer, 0, bytemuck::cast_slice(&instances));
+        ctx.queue
+            .write_buffer(&self.instance_buffer, 0, bytemuck::cast_slice(&instances));
 
         // Update uniforms
         let uniforms = Uniforms {
@@ -326,7 +340,8 @@ impl App for SolarSystemDemo {
             _padding3: 0.0,
         };
 
-        ctx.queue.write_buffer(&self.uniform_buffer, 0, bytemuck::cast_slice(&[uniforms]));
+        ctx.queue
+            .write_buffer(&self.uniform_buffer, 0, bytemuck::cast_slice(&[uniforms]));
     }
 
     fn render(&mut self, ctx: &mut RenderContext) -> Result<()> {
@@ -344,7 +359,7 @@ impl App for SolarSystemDemo {
     }
 
     fn handle_event(&mut self, _ctx: &mut Context, event: &WindowEvent) -> bool {
-        use rustforge_app::prelude::{KeyCode, PhysicalKey, ElementState};
+        use rustforge_app::prelude::{ElementState, KeyCode, PhysicalKey};
 
         if let WindowEvent::KeyboardInput { event, .. } = event {
             if event.state == ElementState::Pressed {
@@ -352,12 +367,18 @@ impl App for SolarSystemDemo {
                     match keycode {
                         KeyCode::Space => {
                             self.paused = !self.paused;
-                            log::info!("Simulation {}", if self.paused { "paused" } else { "resumed" });
+                            log::info!(
+                                "Simulation {}",
+                                if self.paused { "paused" } else { "resumed" }
+                            );
                             return true;
                         }
                         KeyCode::KeyO => {
                             self.show_orbits = !self.show_orbits;
-                            log::info!("Orbits {}", if self.show_orbits { "shown" } else { "hidden" });
+                            log::info!(
+                                "Orbits {}",
+                                if self.show_orbits { "shown" } else { "hidden" }
+                            );
                             return true;
                         }
                         KeyCode::BracketLeft => {
@@ -399,7 +420,7 @@ mod tests {
 
     #[test]
     fn test_uniforms_size() {
-        assert_eq!(std::mem::size_of::<Uniforms>(), 160);
+        assert_eq!(std::mem::size_of::<Uniforms>(), 176);
         assert_eq!(std::mem::size_of::<InstanceData>(), 80);
     }
 }

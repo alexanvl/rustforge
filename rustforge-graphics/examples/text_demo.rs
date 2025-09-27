@@ -4,14 +4,14 @@
 
 use rustforge_core::prelude::*;
 use rustforge_graphics::prelude::*;
-use winit::{
-    event::{Event, WindowEvent, ElementState},
-    event_loop::{ControlFlow, EventLoop},
-    dpi::LogicalSize,
-    keyboard::KeyCode,
-    raw_window_handle::{HasWindowHandle, HasDisplayHandle},
-};
 use std::sync::Arc;
+use winit::{
+    dpi::LogicalSize,
+    event::{ElementState, Event, WindowEvent},
+    event_loop::{ControlFlow, EventLoop},
+    keyboard::KeyCode,
+    raw_window_handle::{HasDisplayHandle, HasWindowHandle},
+};
 
 /// Text rendering demonstration
 /// This creates a window and renders 2D text using the TextRenderer
@@ -20,12 +20,13 @@ fn main() -> Result<()> {
 
     let event_loop = EventLoop::new()
         .map_err(|e| Error::Graphics(format!("Failed to create event loop: {:?}", e)))?;
-    let window = event_loop.create_window(
-        winit::window::WindowAttributes::default()
-            .with_title("RustForge Text Rendering Demo")
-            .with_inner_size(LogicalSize::new(800, 600))
-    )
-    .map_err(|e| Error::Graphics(format!("Failed to create window: {:?}", e)))?;
+    let window = event_loop
+        .create_window(
+            winit::window::WindowAttributes::default()
+                .with_title("RustForge Text Rendering Demo")
+                .with_inner_size(LogicalSize::new(800, 600)),
+        )
+        .map_err(|e| Error::Graphics(format!("Failed to create window: {:?}", e)))?;
 
     // Create wgpu instance
     let instance = wgpu::Instance::new(wgpu::InstanceDescriptor::default());
@@ -36,16 +37,19 @@ fn main() -> Result<()> {
         Err(_) => {
             // Fallback: try unsafe surface creation
             println!("Using fallback surface creation...");
-            let raw_window_handle = window.window_handle()
+            let raw_window_handle = window
+                .window_handle()
                 .map_err(|e| Error::Graphics(format!("Failed to get window handle: {:?}", e)))?;
-            let raw_display_handle = window.display_handle()
+            let raw_display_handle = window
+                .display_handle()
                 .map_err(|e| Error::Graphics(format!("Failed to get display handle: {:?}", e)))?;
             unsafe {
                 instance.create_surface_unsafe(wgpu::SurfaceTargetUnsafe::RawHandle {
                     raw_display_handle: raw_display_handle.as_raw(),
                     raw_window_handle: raw_window_handle.as_raw(),
                 })
-            }.map_err(|e| Error::Graphics(format!("Failed to create surface: {}", e)))?
+            }
+            .map_err(|e| Error::Graphics(format!("Failed to create surface: {}", e)))?
         }
     };
 
@@ -54,7 +58,8 @@ fn main() -> Result<()> {
         power_preference: wgpu::PowerPreference::default(),
         compatible_surface: Some(&surface),
         force_fallback_adapter: false,
-    })).ok_or_else(|| Error::Graphics("Failed to find suitable adapter".into()))?;
+    }))
+    .ok_or_else(|| Error::Graphics("Failed to find suitable adapter".into()))?;
 
     // Create device and queue
     let (device, queue) = pollster::block_on(adapter.request_device(
@@ -65,7 +70,8 @@ fn main() -> Result<()> {
             memory_hints: Default::default(),
         },
         None,
-    )).map_err(|e| Error::Graphics(format!("Failed to create device: {}", e)))?;
+    ))
+    .map_err(|e| Error::Graphics(format!("Failed to create device: {}", e)))?;
 
     let device = Arc::new(device);
     let queue = Arc::new(queue);
@@ -111,7 +117,8 @@ fn main() -> Result<()> {
                     event_loop_window_target.exit();
                 }
                 WindowEvent::KeyboardInput { event, .. } => {
-                    if let winit::keyboard::PhysicalKey::Code(KeyCode::Escape) = event.physical_key {
+                    if let winit::keyboard::PhysicalKey::Code(KeyCode::Escape) = event.physical_key
+                    {
                         if event.state == ElementState::Pressed {
                             event_loop_window_target.exit();
                         }
@@ -133,7 +140,7 @@ fn main() -> Result<()> {
                     text_renderer.resize(size.width, size.height);
                 }
                 _ => {}
-            }
+            },
             Event::NewEvents(_) => {
                 frame_count += 1;
                 let elapsed = start_time.elapsed();
@@ -147,7 +154,10 @@ fn main() -> Result<()> {
                     camera_rotation: glam::Quat::IDENTITY,
                     custom_info: vec![
                         ("Frame Count".to_string(), frame_count.to_string()),
-                        ("Uptime".to_string(), format!("{:.1}s", elapsed.as_secs_f32())),
+                        (
+                            "Uptime".to_string(),
+                            format!("{:.1}s", elapsed.as_secs_f32()),
+                        ),
                         ("Status".to_string(), "Rendering Text".to_string()),
                     ],
                 };
@@ -159,19 +169,29 @@ fn main() -> Result<()> {
                     &format!("FPS: {:.1}\nFrame: {}", fps, frame_count),
                     glam::Vec2::new(20.0, 20.0),
                     [0.9, 0.9, 1.0, 1.0],
-                    1.0
+                    1.0,
                 );
 
                 // Debug: print what we're rendering
-                if frame_count % 60 == 0 { // Every second at 60 FPS
-                    println!("Frame {}: FPS: {:.1}, Text queued: {}", frame_count, fps, debug_info.fps > 0.0);
+                if frame_count % 60 == 0 {
+                    // Every second at 60 FPS
+                    println!(
+                        "Frame {}: FPS: {:.1}, Text queued: {}",
+                        frame_count,
+                        fps,
+                        debug_info.fps > 0.0
+                    );
                 }
 
                 // Render frame
-                let output = surface.get_current_texture()
-                    .map_err(|e| Error::Graphics(format!("Failed to get surface texture: {}", e))).unwrap();
+                let output = surface
+                    .get_current_texture()
+                    .map_err(|e| Error::Graphics(format!("Failed to get surface texture: {}", e)))
+                    .unwrap();
 
-                let view = output.texture.create_view(&wgpu::TextureViewDescriptor::default());
+                let view = output
+                    .texture
+                    .create_view(&wgpu::TextureViewDescriptor::default());
 
                 let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
                     label: Some("Text Demo Encoder"),

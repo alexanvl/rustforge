@@ -44,45 +44,52 @@ impl Mesh {
     pub fn cube() -> Self {
         let vertices = vec![
             // Front face
-            Vertex::new(Vec3::new(-0.5, -0.5,  0.5), Vec3::Z, Vec2::new(0.0, 1.0)),
-            Vertex::new(Vec3::new( 0.5, -0.5,  0.5), Vec3::Z, Vec2::new(1.0, 1.0)),
-            Vertex::new(Vec3::new( 0.5,  0.5,  0.5), Vec3::Z, Vec2::new(1.0, 0.0)),
-            Vertex::new(Vec3::new(-0.5,  0.5,  0.5), Vec3::Z, Vec2::new(0.0, 0.0)),
-
+            Vertex::new(Vec3::new(-0.5, -0.5, 0.5), Vec3::Z, Vec2::new(0.0, 1.0)),
+            Vertex::new(Vec3::new(0.5, -0.5, 0.5), Vec3::Z, Vec2::new(1.0, 1.0)),
+            Vertex::new(Vec3::new(0.5, 0.5, 0.5), Vec3::Z, Vec2::new(1.0, 0.0)),
+            Vertex::new(Vec3::new(-0.5, 0.5, 0.5), Vec3::Z, Vec2::new(0.0, 0.0)),
             // Back face
-            Vertex::new(Vec3::new(-0.5, -0.5, -0.5), Vec3::NEG_Z, Vec2::new(1.0, 1.0)),
-            Vertex::new(Vec3::new(-0.5,  0.5, -0.5), Vec3::NEG_Z, Vec2::new(1.0, 0.0)),
-            Vertex::new(Vec3::new( 0.5,  0.5, -0.5), Vec3::NEG_Z, Vec2::new(0.0, 0.0)),
-            Vertex::new(Vec3::new( 0.5, -0.5, -0.5), Vec3::NEG_Z, Vec2::new(0.0, 1.0)),
-
+            Vertex::new(
+                Vec3::new(-0.5, -0.5, -0.5),
+                Vec3::NEG_Z,
+                Vec2::new(1.0, 1.0),
+            ),
+            Vertex::new(Vec3::new(-0.5, 0.5, -0.5), Vec3::NEG_Z, Vec2::new(1.0, 0.0)),
+            Vertex::new(Vec3::new(0.5, 0.5, -0.5), Vec3::NEG_Z, Vec2::new(0.0, 0.0)),
+            Vertex::new(Vec3::new(0.5, -0.5, -0.5), Vec3::NEG_Z, Vec2::new(0.0, 1.0)),
             // Right face
-            Vertex::new(Vec3::new( 0.5, -0.5,  0.5), Vec3::X, Vec2::new(0.0, 1.0)),
-            Vertex::new(Vec3::new( 0.5, -0.5, -0.5), Vec3::X, Vec2::new(1.0, 1.0)),
-            Vertex::new(Vec3::new( 0.5,  0.5, -0.5), Vec3::X, Vec2::new(1.0, 0.0)),
-            Vertex::new(Vec3::new( 0.5,  0.5,  0.5), Vec3::X, Vec2::new(0.0, 0.0)),
-
+            Vertex::new(Vec3::new(0.5, -0.5, 0.5), Vec3::X, Vec2::new(0.0, 1.0)),
+            Vertex::new(Vec3::new(0.5, -0.5, -0.5), Vec3::X, Vec2::new(1.0, 1.0)),
+            Vertex::new(Vec3::new(0.5, 0.5, -0.5), Vec3::X, Vec2::new(1.0, 0.0)),
+            Vertex::new(Vec3::new(0.5, 0.5, 0.5), Vec3::X, Vec2::new(0.0, 0.0)),
             // Left face
-            Vertex::new(Vec3::new(-0.5, -0.5, -0.5), Vec3::NEG_X, Vec2::new(0.0, 1.0)),
-            Vertex::new(Vec3::new(-0.5, -0.5,  0.5), Vec3::NEG_X, Vec2::new(1.0, 1.0)),
-            Vertex::new(Vec3::new(-0.5,  0.5,  0.5), Vec3::NEG_X, Vec2::new(1.0, 0.0)),
-            Vertex::new(Vec3::new(-0.5,  0.5, -0.5), Vec3::NEG_X, Vec2::new(0.0, 0.0)),
-
+            Vertex::new(
+                Vec3::new(-0.5, -0.5, -0.5),
+                Vec3::NEG_X,
+                Vec2::new(0.0, 1.0),
+            ),
+            Vertex::new(Vec3::new(-0.5, -0.5, 0.5), Vec3::NEG_X, Vec2::new(1.0, 1.0)),
+            Vertex::new(Vec3::new(-0.5, 0.5, 0.5), Vec3::NEG_X, Vec2::new(1.0, 0.0)),
+            Vertex::new(Vec3::new(-0.5, 0.5, -0.5), Vec3::NEG_X, Vec2::new(0.0, 0.0)),
             // Top face
-            Vertex::new(Vec3::new(-0.5,  0.5,  0.5), Vec3::Y, Vec2::new(0.0, 1.0)),
-            Vertex::new(Vec3::new( 0.5,  0.5,  0.5), Vec3::Y, Vec2::new(1.0, 1.0)),
-            Vertex::new(Vec3::new( 0.5,  0.5, -0.5), Vec3::Y, Vec2::new(1.0, 0.0)),
-            Vertex::new(Vec3::new(-0.5,  0.5, -0.5), Vec3::Y, Vec2::new(0.0, 0.0)),
-
+            Vertex::new(Vec3::new(-0.5, 0.5, 0.5), Vec3::Y, Vec2::new(0.0, 1.0)),
+            Vertex::new(Vec3::new(0.5, 0.5, 0.5), Vec3::Y, Vec2::new(1.0, 1.0)),
+            Vertex::new(Vec3::new(0.5, 0.5, -0.5), Vec3::Y, Vec2::new(1.0, 0.0)),
+            Vertex::new(Vec3::new(-0.5, 0.5, -0.5), Vec3::Y, Vec2::new(0.0, 0.0)),
             // Bottom face
-            Vertex::new(Vec3::new(-0.5, -0.5, -0.5), Vec3::NEG_Y, Vec2::new(0.0, 1.0)),
-            Vertex::new(Vec3::new( 0.5, -0.5, -0.5), Vec3::NEG_Y, Vec2::new(1.0, 1.0)),
-            Vertex::new(Vec3::new( 0.5, -0.5,  0.5), Vec3::NEG_Y, Vec2::new(1.0, 0.0)),
-            Vertex::new(Vec3::new(-0.5, -0.5,  0.5), Vec3::NEG_Y, Vec2::new(0.0, 0.0)),
+            Vertex::new(
+                Vec3::new(-0.5, -0.5, -0.5),
+                Vec3::NEG_Y,
+                Vec2::new(0.0, 1.0),
+            ),
+            Vertex::new(Vec3::new(0.5, -0.5, -0.5), Vec3::NEG_Y, Vec2::new(1.0, 1.0)),
+            Vertex::new(Vec3::new(0.5, -0.5, 0.5), Vec3::NEG_Y, Vec2::new(1.0, 0.0)),
+            Vertex::new(Vec3::new(-0.5, -0.5, 0.5), Vec3::NEG_Y, Vec2::new(0.0, 0.0)),
         ];
 
         let indices = vec![
-            0, 1, 2,  2, 3, 0,  // front
-            4, 5, 6,  6, 7, 4,  // back
+            0, 1, 2, 2, 3, 0, // front
+            4, 5, 6, 6, 7, 4, // back
             8, 9, 10, 10, 11, 8, // right
             12, 13, 14, 14, 15, 12, // left
             16, 17, 18, 18, 19, 16, // top
@@ -96,45 +103,52 @@ impl Mesh {
     pub fn skybox_cube() -> Self {
         let vertices = vec![
             // Front face (inverted for inside rendering)
-            Vertex::new(Vec3::new(-1.0, -1.0, -1.0), Vec3::NEG_Z, Vec2::new(0.0, 1.0)),
-            Vertex::new(Vec3::new( 1.0, -1.0, -1.0), Vec3::NEG_Z, Vec2::new(1.0, 1.0)),
-            Vertex::new(Vec3::new( 1.0,  1.0, -1.0), Vec3::NEG_Z, Vec2::new(1.0, 0.0)),
-            Vertex::new(Vec3::new(-1.0,  1.0, -1.0), Vec3::NEG_Z, Vec2::new(0.0, 0.0)),
-
+            Vertex::new(
+                Vec3::new(-1.0, -1.0, -1.0),
+                Vec3::NEG_Z,
+                Vec2::new(0.0, 1.0),
+            ),
+            Vertex::new(Vec3::new(1.0, -1.0, -1.0), Vec3::NEG_Z, Vec2::new(1.0, 1.0)),
+            Vertex::new(Vec3::new(1.0, 1.0, -1.0), Vec3::NEG_Z, Vec2::new(1.0, 0.0)),
+            Vertex::new(Vec3::new(-1.0, 1.0, -1.0), Vec3::NEG_Z, Vec2::new(0.0, 0.0)),
             // Back face
-            Vertex::new(Vec3::new(-1.0, -1.0,  1.0), Vec3::Z, Vec2::new(1.0, 1.0)),
-            Vertex::new(Vec3::new(-1.0,  1.0,  1.0), Vec3::Z, Vec2::new(1.0, 0.0)),
-            Vertex::new(Vec3::new( 1.0,  1.0,  1.0), Vec3::Z, Vec2::new(0.0, 0.0)),
-            Vertex::new(Vec3::new( 1.0, -1.0,  1.0), Vec3::Z, Vec2::new(0.0, 1.0)),
-
+            Vertex::new(Vec3::new(-1.0, -1.0, 1.0), Vec3::Z, Vec2::new(1.0, 1.0)),
+            Vertex::new(Vec3::new(-1.0, 1.0, 1.0), Vec3::Z, Vec2::new(1.0, 0.0)),
+            Vertex::new(Vec3::new(1.0, 1.0, 1.0), Vec3::Z, Vec2::new(0.0, 0.0)),
+            Vertex::new(Vec3::new(1.0, -1.0, 1.0), Vec3::Z, Vec2::new(0.0, 1.0)),
             // Right face
-            Vertex::new(Vec3::new( 1.0, -1.0, -1.0), Vec3::X, Vec2::new(0.0, 1.0)),
-            Vertex::new(Vec3::new( 1.0, -1.0,  1.0), Vec3::X, Vec2::new(1.0, 1.0)),
-            Vertex::new(Vec3::new( 1.0,  1.0,  1.0), Vec3::X, Vec2::new(1.0, 0.0)),
-            Vertex::new(Vec3::new( 1.0,  1.0, -1.0), Vec3::X, Vec2::new(0.0, 0.0)),
-
+            Vertex::new(Vec3::new(1.0, -1.0, -1.0), Vec3::X, Vec2::new(0.0, 1.0)),
+            Vertex::new(Vec3::new(1.0, -1.0, 1.0), Vec3::X, Vec2::new(1.0, 1.0)),
+            Vertex::new(Vec3::new(1.0, 1.0, 1.0), Vec3::X, Vec2::new(1.0, 0.0)),
+            Vertex::new(Vec3::new(1.0, 1.0, -1.0), Vec3::X, Vec2::new(0.0, 0.0)),
             // Left face
-            Vertex::new(Vec3::new(-1.0, -1.0,  1.0), Vec3::NEG_X, Vec2::new(0.0, 1.0)),
-            Vertex::new(Vec3::new(-1.0, -1.0, -1.0), Vec3::NEG_X, Vec2::new(1.0, 1.0)),
-            Vertex::new(Vec3::new(-1.0,  1.0, -1.0), Vec3::NEG_X, Vec2::new(1.0, 0.0)),
-            Vertex::new(Vec3::new(-1.0,  1.0,  1.0), Vec3::NEG_X, Vec2::new(0.0, 0.0)),
-
+            Vertex::new(Vec3::new(-1.0, -1.0, 1.0), Vec3::NEG_X, Vec2::new(0.0, 1.0)),
+            Vertex::new(
+                Vec3::new(-1.0, -1.0, -1.0),
+                Vec3::NEG_X,
+                Vec2::new(1.0, 1.0),
+            ),
+            Vertex::new(Vec3::new(-1.0, 1.0, -1.0), Vec3::NEG_X, Vec2::new(1.0, 0.0)),
+            Vertex::new(Vec3::new(-1.0, 1.0, 1.0), Vec3::NEG_X, Vec2::new(0.0, 0.0)),
             // Top face
-            Vertex::new(Vec3::new(-1.0,  1.0, -1.0), Vec3::Y, Vec2::new(0.0, 1.0)),
-            Vertex::new(Vec3::new( 1.0,  1.0, -1.0), Vec3::Y, Vec2::new(1.0, 1.0)),
-            Vertex::new(Vec3::new( 1.0,  1.0,  1.0), Vec3::Y, Vec2::new(1.0, 0.0)),
-            Vertex::new(Vec3::new(-1.0,  1.0,  1.0), Vec3::Y, Vec2::new(0.0, 0.0)),
-
+            Vertex::new(Vec3::new(-1.0, 1.0, -1.0), Vec3::Y, Vec2::new(0.0, 1.0)),
+            Vertex::new(Vec3::new(1.0, 1.0, -1.0), Vec3::Y, Vec2::new(1.0, 1.0)),
+            Vertex::new(Vec3::new(1.0, 1.0, 1.0), Vec3::Y, Vec2::new(1.0, 0.0)),
+            Vertex::new(Vec3::new(-1.0, 1.0, 1.0), Vec3::Y, Vec2::new(0.0, 0.0)),
             // Bottom face
-            Vertex::new(Vec3::new(-1.0, -1.0,  1.0), Vec3::NEG_Y, Vec2::new(0.0, 1.0)),
-            Vertex::new(Vec3::new( 1.0, -1.0,  1.0), Vec3::NEG_Y, Vec2::new(1.0, 1.0)),
-            Vertex::new(Vec3::new( 1.0, -1.0, -1.0), Vec3::NEG_Y, Vec2::new(1.0, 0.0)),
-            Vertex::new(Vec3::new(-1.0, -1.0, -1.0), Vec3::NEG_Y, Vec2::new(0.0, 0.0)),
+            Vertex::new(Vec3::new(-1.0, -1.0, 1.0), Vec3::NEG_Y, Vec2::new(0.0, 1.0)),
+            Vertex::new(Vec3::new(1.0, -1.0, 1.0), Vec3::NEG_Y, Vec2::new(1.0, 1.0)),
+            Vertex::new(Vec3::new(1.0, -1.0, -1.0), Vec3::NEG_Y, Vec2::new(1.0, 0.0)),
+            Vertex::new(
+                Vec3::new(-1.0, -1.0, -1.0),
+                Vec3::NEG_Y,
+                Vec2::new(0.0, 0.0),
+            ),
         ];
 
         let indices = vec![
-            0, 1, 2,  2, 3, 0,  // front
-            4, 5, 6,  6, 7, 4,  // back
+            0, 1, 2, 2, 3, 0, // front
+            4, 5, 6, 6, 7, 4, // back
             8, 9, 10, 10, 11, 8, // right
             12, 13, 14, 14, 15, 12, // left
             16, 17, 18, 18, 19, 16, // top
@@ -203,9 +217,10 @@ mod tests {
             }
 
             // Normals should be normalized
-            let normal_length = (vertex.normal[0] * vertex.normal[0] +
-                               vertex.normal[1] * vertex.normal[1] +
-                               vertex.normal[2] * vertex.normal[2]).sqrt();
+            let normal_length = (vertex.normal[0] * vertex.normal[0]
+                + vertex.normal[1] * vertex.normal[1]
+                + vertex.normal[2] * vertex.normal[2])
+                .sqrt();
             assert!((normal_length - 1.0).abs() < 0.001);
 
             // Texture coordinates should be in range [0, 1]
@@ -236,9 +251,10 @@ mod tests {
             }
 
             // Normals should be normalized (but inverted for inside rendering)
-            let normal_length = (vertex.normal[0] * vertex.normal[0] +
-                               vertex.normal[1] * vertex.normal[1] +
-                               vertex.normal[2] * vertex.normal[2]).sqrt();
+            let normal_length = (vertex.normal[0] * vertex.normal[0]
+                + vertex.normal[1] * vertex.normal[1]
+                + vertex.normal[2] * vertex.normal[2])
+                .sqrt();
             assert!((normal_length - 1.0).abs() < 0.001);
 
             // Texture coordinates should be in range [0, 1]

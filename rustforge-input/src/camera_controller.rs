@@ -1,9 +1,9 @@
 //! Camera controller for free-moving cameras
 
-use winit::event::{ElementState, WindowEvent, MouseButton};
-use winit::keyboard::{PhysicalKey, KeyCode};
-use glam::{Vec3, Quat};
+use glam::{Quat, Vec3};
 use rustforge_graphics::Camera;
+use winit::event::{ElementState, MouseButton, WindowEvent};
+use winit::keyboard::{KeyCode, PhysicalKey};
 
 /// Controls for a free-moving camera
 #[derive(Debug, Clone)]
@@ -80,7 +80,8 @@ impl CameraController {
     /// Update the camera based on input state
     pub fn update(&mut self, camera: &mut Camera, dt: f32) {
         // Update rotation
-        camera.transform.rotation = Quat::from_rotation_y(self.yaw) * Quat::from_rotation_x(self.pitch);
+        camera.transform.rotation =
+            Quat::from_rotation_y(self.yaw) * Quat::from_rotation_x(self.pitch);
 
         // Calculate movement
         let forward = camera.transform.rotation * Vec3::NEG_Z;
@@ -88,15 +89,31 @@ impl CameraController {
 
         let mut velocity = Vec3::ZERO;
 
-        if self.movement.forward { velocity += forward; }
-        if self.movement.backward { velocity -= forward; }
-        if self.movement.right { velocity += right; }
-        if self.movement.left { velocity -= right; }
-        if self.movement.up { velocity += Vec3::Y; }
-        if self.movement.down { velocity -= Vec3::Y; }
+        if self.movement.forward {
+            velocity += forward;
+        }
+        if self.movement.backward {
+            velocity -= forward;
+        }
+        if self.movement.right {
+            velocity += right;
+        }
+        if self.movement.left {
+            velocity -= right;
+        }
+        if self.movement.up {
+            velocity += Vec3::Y;
+        }
+        if self.movement.down {
+            velocity -= Vec3::Y;
+        }
 
         if velocity.length_squared() > 0.0 {
-            let speed = if self.shift_pressed { self.fast_speed } else { self.move_speed };
+            let speed = if self.shift_pressed {
+                self.fast_speed
+            } else {
+                self.move_speed
+            };
             velocity = velocity.normalize() * speed * dt;
             camera.transform.position += velocity;
         }
@@ -134,7 +151,7 @@ impl CameraController {
                 self.shift_pressed = is_pressed;
                 true
             }
-            _ => false
+            _ => false,
         }
     }
 
@@ -156,7 +173,9 @@ impl CameraController {
             self.pitch -= delta_y * self.mouse_sensitivity;
 
             // Clamp pitch to prevent camera flipping
-            self.pitch = self.pitch.clamp(-89.0f32.to_radians(), 89.0f32.to_radians());
+            self.pitch = self
+                .pitch
+                .clamp(-89.0f32.to_radians(), 89.0f32.to_radians());
         }
         self.last_mouse_pos = position;
     }

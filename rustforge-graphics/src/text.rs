@@ -40,14 +40,23 @@ pub struct TextVertex {
 
 impl TextRenderer {
     /// Create a new text renderer using fontdue with embedded font
-    pub fn new(device: &Arc<wgpu::Device>, queue: &Arc<wgpu::Queue>, surface_format: wgpu::TextureFormat) -> Result<Self> {
+    pub fn new(
+        device: &Arc<wgpu::Device>,
+        queue: &Arc<wgpu::Queue>,
+        surface_format: wgpu::TextureFormat,
+    ) -> Result<Self> {
         // Load default font
         let font_data = include_bytes!("../assets/Geneva.ttf");
         Self::new_with_font(device, queue, surface_format, font_data)
     }
 
     /// Create a new text renderer using fontdue with provided font data
-    pub fn new_with_font(device: &Arc<wgpu::Device>, queue: &Arc<wgpu::Queue>, surface_format: wgpu::TextureFormat, font_data: &[u8]) -> Result<Self> {
+    pub fn new_with_font(
+        device: &Arc<wgpu::Device>,
+        queue: &Arc<wgpu::Queue>,
+        surface_format: wgpu::TextureFormat,
+        font_data: &[u8],
+    ) -> Result<Self> {
         let max_chars = 1024;
         let surface_width = 800;
         let surface_height = 600;
@@ -80,30 +89,37 @@ impl TextRenderer {
         let mut font_pixels = vec![0u8; (texture_width * texture_height) as usize];
         let ascii_chars = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
 
-                    for (i, ch) in ascii_chars.chars().enumerate() {
-                        let i_u32 = i as u32;
-                        if i_u32 >= CHARS_PER_ROW * ATLAS_ROWS { break; }
+        for (i, ch) in ascii_chars.chars().enumerate() {
+            let i_u32 = i as u32;
+            if i_u32 >= CHARS_PER_ROW * ATLAS_ROWS {
+                break;
+            }
 
-                        let char_x = (i_u32 % CHARS_PER_ROW) * CHAR_WIDTH;
-                        let char_y = (i_u32 / CHARS_PER_ROW) * CHAR_HEIGHT;
+            let char_x = (i_u32 % CHARS_PER_ROW) * CHAR_WIDTH;
+            let char_y = (i_u32 / CHARS_PER_ROW) * CHAR_HEIGHT;
 
             let (metrics, bitmap) = font.rasterize(ch, font_size);
             let bitmap_width = metrics.width as usize;
             let bitmap_height = metrics.height as usize;
 
-                        // Copy bitmap to texture atlas
-                        for y in 0..bitmap_height.min(CHAR_HEIGHT as usize) {
-                            for x in 0..bitmap_width.min(CHAR_WIDTH as usize) {
-                                let src_idx = y * bitmap_width + x;
-                                let dst_x = char_x + x as u32;
-                                let ymin_offset = if metrics.ymin < 0 { 0 } else { metrics.ymin as u32 };
-                                let dst_y = char_y + y as u32 + ymin_offset;
-                                if dst_x < texture_width && dst_y < texture_height && src_idx < bitmap.len() {
-                                    let dst_idx = (dst_y as usize * texture_width as usize + dst_x as usize) as usize;
-                                    font_pixels[dst_idx] = bitmap[src_idx];
-                                }
-                            }
-                        }
+            // Copy bitmap to texture atlas
+            for y in 0..bitmap_height.min(CHAR_HEIGHT as usize) {
+                for x in 0..bitmap_width.min(CHAR_WIDTH as usize) {
+                    let src_idx = y * bitmap_width + x;
+                    let dst_x = char_x + x as u32;
+                    let ymin_offset = if metrics.ymin < 0 {
+                        0
+                    } else {
+                        metrics.ymin as u32
+                    };
+                    let dst_y = char_y + y as u32 + ymin_offset;
+                    if dst_x < texture_width && dst_y < texture_height && src_idx < bitmap.len() {
+                        let dst_idx =
+                            (dst_y as usize * texture_width as usize + dst_x as usize) as usize;
+                        font_pixels[dst_idx] = bitmap[src_idx];
+                    }
+                }
+            }
         }
 
         // Upload font data to texture
@@ -227,7 +243,9 @@ impl TextRenderer {
                             format: wgpu::VertexFormat::Float32x2,
                         },
                         wgpu::VertexAttribute {
-                            offset: (std::mem::size_of::<[f32; 2]>() + std::mem::size_of::<[f32; 2]>()) as wgpu::BufferAddress,
+                            offset: (std::mem::size_of::<[f32; 2]>()
+                                + std::mem::size_of::<[f32; 2]>())
+                                as wgpu::BufferAddress,
                             shader_location: 2,
                             format: wgpu::VertexFormat::Float32x4,
                         },
@@ -324,8 +342,10 @@ impl TextRenderer {
 
                 let uv_min_x = atlas_x as f32 / (CHARS_PER_ROW * CHAR_WIDTH) as f32;
                 let uv_min_y = atlas_y as f32 / (ATLAS_ROWS * CHAR_HEIGHT) as f32;
-                let uv_max_x = (atlas_x + metrics.width as u32) as f32 / (CHARS_PER_ROW * CHAR_WIDTH) as f32;
-                let uv_max_y = (atlas_y + metrics.height as u32) as f32 / (ATLAS_ROWS * CHAR_HEIGHT) as f32;
+                let uv_max_x =
+                    (atlas_x + metrics.width as u32) as f32 / (CHARS_PER_ROW * CHAR_WIDTH) as f32;
+                let uv_max_y =
+                    (atlas_y + metrics.height as u32) as f32 / (ATLAS_ROWS * CHAR_HEIGHT) as f32;
 
                 // Add quad for this character
                 let base_index = self.vertices.len() as u32;
@@ -342,7 +362,10 @@ impl TextRenderer {
                         color,
                     },
                     TextVertex {
-                        position: [char_x + metrics.width as f32, char_y + metrics.height as f32],
+                        position: [
+                            char_x + metrics.width as f32,
+                            char_y + metrics.height as f32,
+                        ],
                         uv: [uv_max_x, uv_max_y],
                         color,
                     },
@@ -354,8 +377,12 @@ impl TextRenderer {
                 ]);
 
                 self.indices.extend_from_slice(&[
-                    base_index, base_index + 1, base_index + 2,
-                    base_index, base_index + 2, base_index + 3,
+                    base_index,
+                    base_index + 1,
+                    base_index + 2,
+                    base_index,
+                    base_index + 2,
+                    base_index + 3,
                 ]);
             }
 
@@ -370,8 +397,10 @@ impl TextRenderer {
         }
 
         // Update buffers
-        self.queue.write_buffer(&self.vertex_buffer, 0, bytemuck::cast_slice(&self.vertices));
-        self.queue.write_buffer(&self.index_buffer, 0, bytemuck::cast_slice(&self.indices));
+        self.queue
+            .write_buffer(&self.vertex_buffer, 0, bytemuck::cast_slice(&self.vertices));
+        self.queue
+            .write_buffer(&self.index_buffer, 0, bytemuck::cast_slice(&self.indices));
 
         // Render
         render_pass.set_pipeline(&self.pipeline);

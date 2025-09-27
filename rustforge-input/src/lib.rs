@@ -1,13 +1,13 @@
 //! Input handling module for RustForge
 
-mod input_state;
 mod camera_controller;
+mod input_state;
 
-pub use input_state::InputState;
 pub use camera_controller::CameraController;
+pub use input_state::InputState;
 
 /// Re-export input types
 pub mod prelude {
-    pub use super::InputState;
     pub use super::CameraController;
+    pub use super::InputState;
 }

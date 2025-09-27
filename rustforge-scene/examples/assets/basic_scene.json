@@ -1,0 +1,182 @@
+{
+  "version": "1.0",
+  "nodes": [
+    {
+      "name": "Environment",
+      "transform": {
+        "position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "children": [
+        "Sun",
+        "Terrain"
+      ],
+      "components": [],
+      "tags": [
+        "environment"
+      ],
+      "active": true
+    },
+    {
+      "name": "Sun",
+      "transform": {
+        "position": [
+          0.0,
+          100.0,
+          0.0
+        ],
+        "rotation": [
+          -0.38268426,
+          0.0,
+          0.0,
+          0.9238792
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "children": [],
+      "components": [],
+      "tags": [
+        "light",
+        "directional"
+      ],
+      "active": true
+    },
+    {
+      "name": "Terrain",
+      "transform": {
+        "position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "children": [],
+      "components": [],
+      "tags": [
+        "collidable",
+        "static"
+      ],
+      "active": true
+    },
+    {
+      "name": "Player",
+      "transform": {
+        "position": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "children": [
+        "Camera",
+        "Weapon"
+      ],
+      "components": [],
+      "tags": [
+        "player",
+        "dynamic"
+      ],
+      "active": true
+    },
+    {
+      "name": "Camera",
+      "transform": {
+        "position": [
+          0.0,
+          0.6,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "children": [],
+      "components": [],
+      "tags": [
+        "camera"
+      ],
+      "active": true
+    },
+    {
+      "name": "Weapon",
+      "transform": {
+        "position": [
+          0.3,
+          0.0,
+          0.5
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "children": [],
+      "components": [],
+      "tags": [
+        "weapon",
+        "item"
+      ],
+      "active": true
+    }
+  ],
+  "assets": {
+    "meshes": {},
+    "textures": {},
+    "materials": {}
+  }
+}

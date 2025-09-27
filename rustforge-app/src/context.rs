@@ -1,8 +1,8 @@
 //! Application context and render context
 
-use std::sync::Arc;
 use rustforge_graphics::Camera;
 use rustforge_input::InputState;
+use std::sync::Arc;
 
 /// Application context passed to App methods
 pub struct Context {

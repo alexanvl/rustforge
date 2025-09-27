@@ -1,8 +1,8 @@
 //! Physics example demonstrating rigid body creation and properties
 
+use glam::{Quat, Vec3};
 use rustforge_physics::prelude::*;
 use rustforge_physics::rigid_body::create_rigid_body;
-use glam::{Vec3, Quat};
 
 fn main() {
     println!("RustForge Physics - Rigid Body Demo");
@@ -12,7 +12,10 @@ fn main() {
     let position = Vec3::new(0.0, 5.0, 0.0);
     let rotation = Quat::from_rotation_y(std::f32::consts::PI / 4.0);
 
-    println!("Creating rigid bodies at position {:?} with rotation {:?}", position, rotation);
+    println!(
+        "Creating rigid bodies at position {:?} with rotation {:?}",
+        position, rotation
+    );
 
     // Dynamic rigid body
     let dynamic_body = create_rigid_body(RigidBodyType::Dynamic, position, rotation).build();
@@ -58,13 +61,26 @@ fn main() {
     let test_cases = vec![
         ("Origin", Vec3::ZERO, Quat::IDENTITY),
         ("Offset", Vec3::new(10.0, -5.0, 3.0), Quat::IDENTITY),
-        ("Rotated", Vec3::ZERO, Quat::from_rotation_x(std::f32::consts::PI / 2.0)),
-        ("Both", Vec3::new(5.0, 10.0, -2.0), Quat::from_rotation_z(std::f32::consts::PI / 3.0)),
+        (
+            "Rotated",
+            Vec3::ZERO,
+            Quat::from_rotation_x(std::f32::consts::PI / 2.0),
+        ),
+        (
+            "Both",
+            Vec3::new(5.0, 10.0, -2.0),
+            Quat::from_rotation_z(std::f32::consts::PI / 3.0),
+        ),
     ];
 
     for (name, pos, rot) in test_cases {
         let body = create_rigid_body(RigidBodyType::Dynamic, pos, rot).build();
-        println!("{}: pos={:?}, rot={:?}", name, body.translation(), body.rotation());
+        println!(
+            "{}: pos={:?}, rot={:?}",
+            name,
+            body.translation(),
+            body.rotation()
+        );
     }
 
     // Demonstrate body properties
@@ -74,8 +90,9 @@ fn main() {
     let body = create_rigid_body(
         RigidBodyType::Dynamic,
         Vec3::new(0.0, 10.0, 0.0),
-        Quat::IDENTITY
-    ).build();
+        Quat::IDENTITY,
+    )
+    .build();
 
     println!("Initial state:");
     println!("  Position: {:?}", body.translation());
@@ -84,4 +101,3 @@ fn main() {
     println!("  Mass: {:.2}", body.mass());
     println!("  Center of mass: {:?}", body.center_of_mass());
 }
-

@@ -5,19 +5,18 @@ pub mod systems;
 pub mod world;
 
 pub use specs::{
-    Builder, Component, DispatcherBuilder, Entity, Join, ReadStorage, System,
-    World, WorldExt, WriteStorage, VecStorage, DenseVecStorage, FlaggedStorage,
+    Builder, Component, DenseVecStorage, DispatcherBuilder, Entity, FlaggedStorage, Join,
+    ReadStorage, System, VecStorage, World, WorldExt, WriteStorage,
 };
 
 pub use world::EcsWorld;
 
 /// Re-export common ECS types
 pub mod prelude {
-    pub use super::{
-        Builder, Component, Entity, Join, ReadStorage, System,
-        World, WorldExt, WriteStorage, VecStorage, DenseVecStorage,
-        EcsWorld,
-    };
     pub use super::components::*;
     pub use super::systems::*;
+    pub use super::{
+        Builder, Component, DenseVecStorage, EcsWorld, Entity, Join, ReadStorage, System,
+        VecStorage, World, WorldExt, WriteStorage,
+    };
 }

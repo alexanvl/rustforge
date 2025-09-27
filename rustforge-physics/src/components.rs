@@ -1,10 +1,10 @@
 //! Physics ECS components
 
-use specs::{Component, VecStorage, DenseVecStorage};
-use specs_derive::Component;
-use rapier3d::prelude::*;
-use glam::Vec3;
 use crate::{ColliderShape, RigidBodyType};
+use glam::Vec3;
+use rapier3d::prelude::*;
+use specs::{Component, DenseVecStorage, VecStorage};
+use specs_derive::Component;
 
 /// Physics body component
 #[derive(Component, Debug)]

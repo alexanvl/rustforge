@@ -1,8 +1,8 @@
 //! Core ECS components
 
-use specs::{Component, DenseVecStorage, VecStorage, FlaggedStorage};
-use specs_derive::Component;
 use rustforge_core::prelude::*;
+use specs::{Component, DenseVecStorage, FlaggedStorage, VecStorage};
+use specs_derive::Component;
 
 /// Transform component for spatial data
 #[derive(Component, Debug, Clone, Copy)]
@@ -53,10 +53,23 @@ impl Active {
 #[storage(DenseVecStorage)]
 pub struct PlayerControlled;
 
+/// Component that links an entity to a scene graph node
+#[derive(Component, Debug, Clone, Copy, PartialEq, Eq)]
+#[storage(VecStorage)]
+pub struct SceneNodeComponent {
+    pub node_id: rustforge_scene::NodeId,
+}
+
+impl SceneNodeComponent {
+    pub fn new(node_id: rustforge_scene::NodeId) -> Self {
+        Self { node_id }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
-    use glam::{Vec3, Quat};
+    use glam::{Quat, Vec3};
 
     #[test]
     fn test_transform_component_default() {

@@ -46,7 +46,11 @@ pub struct PositionNormalTexcoord {
 
 impl PositionNormalTexcoord {
     pub fn new(position: [f32; 3], normal: [f32; 3], texcoord: [f32; 2]) -> Self {
-        Self { position, normal, texcoord }
+        Self {
+            position,
+            normal,
+            texcoord,
+        }
     }
 
     pub fn desc() -> wgpu::VertexBufferLayout<'static> {
@@ -90,13 +94,11 @@ impl Position {
         wgpu::VertexBufferLayout {
             array_stride: std::mem::size_of::<Self>() as wgpu::BufferAddress,
             step_mode: wgpu::VertexStepMode::Vertex,
-            attributes: &[
-                wgpu::VertexAttribute {
-                    offset: 0,
-                    shader_location: 0,
-                    format: wgpu::VertexFormat::Float32x3,
-                },
-            ],
+            attributes: &[wgpu::VertexAttribute {
+                offset: 0,
+                shader_location: 0,
+                format: wgpu::VertexFormat::Float32x3,
+            }],
         }
     }
 }

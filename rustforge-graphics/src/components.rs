@@ -1,8 +1,8 @@
 //! Graphics-related ECS components
 
-use specs::{Component, VecStorage, DenseVecStorage};
-use specs_derive::Component;
 use glam::Vec3;
+use specs::{Component, DenseVecStorage, VecStorage};
+use specs_derive::Component;
 
 /// Renderable component marking entities for rendering
 #[derive(Component, Debug, Clone)]
@@ -24,9 +24,22 @@ pub struct Skybox {
 #[derive(Component, Debug, Clone)]
 #[storage(VecStorage)]
 pub enum Light {
-    Directional { direction: Vec3, color: Vec3, intensity: f32 },
-    Point { color: Vec3, intensity: f32, radius: f32 },
-    Spot { direction: Vec3, color: Vec3, intensity: f32, angle: f32 },
+    Directional {
+        direction: Vec3,
+        color: Vec3,
+        intensity: f32,
+    },
+    Point {
+        color: Vec3,
+        intensity: f32,
+        radius: f32,
+    },
+    Spot {
+        direction: Vec3,
+        color: Vec3,
+        intensity: f32,
+        angle: f32,
+    },
 }
 
 /// Camera marker component
@@ -81,7 +94,11 @@ mod tests {
         };
 
         match dir_light {
-            Light::Directional { direction, color, intensity } => {
+            Light::Directional {
+                direction,
+                color,
+                intensity,
+            } => {
                 assert_eq!(direction, Vec3::new(0.0, -1.0, 0.0));
                 assert_eq!(color, Vec3::ONE);
                 assert_eq!(intensity, 0.8);
@@ -96,7 +113,11 @@ mod tests {
         };
 
         match point_light {
-            Light::Point { color, intensity, radius } => {
+            Light::Point {
+                color,
+                intensity,
+                radius,
+            } => {
                 assert_eq!(color, Vec3::new(1.0, 0.8, 0.6));
                 assert_eq!(intensity, 100.0);
                 assert_eq!(radius, 10.0);

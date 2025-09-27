@@ -1,9 +1,9 @@
 //! ECS World wrapper and utilities
 
-use specs::{World, WorldExt, DispatcherBuilder, Dispatcher};
-use rustforge_core::prelude::*;
 use crate::components::*;
 use crate::systems::*;
+use rustforge_core::prelude::*;
+use specs::{Dispatcher, DispatcherBuilder, World, WorldExt};
 
 /// Wrapper around specs World with RustForge-specific functionality
 pub struct EcsWorld {
@@ -79,7 +79,8 @@ mod tests {
         let mut world = EcsWorld::new().unwrap();
 
         // Create an entity with components
-        let entity = world.world_mut()
+        let entity = world
+            .world_mut()
             .create_entity()
             .with(TransformComponent::default())
             .with(Name("TestEntity".to_string()))
@@ -115,13 +116,15 @@ mod tests {
         let mut world = EcsWorld::new().unwrap();
 
         // Create multiple entities
-        let entity1 = world.world_mut()
+        let entity1 = world
+            .world_mut()
             .create_entity()
             .with(TransformComponent::default())
             .with(Tag("Player".to_string()))
             .build();
 
-        let entity2 = world.world_mut()
+        let entity2 = world
+            .world_mut()
             .create_entity()
             .with(TransformComponent::default())
             .with(Tag("Enemy".to_string()))

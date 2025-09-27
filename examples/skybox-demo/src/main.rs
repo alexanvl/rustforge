@@ -3,10 +3,9 @@
 //! This demonstrates how the new rustforge-app framework dramatically reduces
 //! boilerplate while still providing full functionality.
 
-use rustforge_app::prelude::*;
-use glam::{Vec3, Mat4};
 use bytemuck::{Pod, Zeroable};
-use wgpu::util::DeviceExt;
+use glam::{Mat4, Vec3};
+use rustforge_app::prelude::*;
 
 #[repr(C)]
 #[derive(Copy, Clone, Debug, Pod, Zeroable)]
@@ -88,24 +87,28 @@ impl App for SkyboxDemo {
         });
 
         // Create model pipeline (simplified for now)
-        let shader = ctx.device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label: Some("Model Shader"),
-            source: wgpu::ShaderSource::Wgsl(include_str!("model.wgsl").into()),
-        });
+        let shader = ctx
+            .device
+            .create_shader_module(wgpu::ShaderModuleDescriptor {
+                label: Some("Model Shader"),
+                source: wgpu::ShaderSource::Wgsl(include_str!("model.wgsl").into()),
+            });
 
-        let bind_group_layout = ctx.device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
-            entries: &[wgpu::BindGroupLayoutEntry {
-                binding: 0,
-                visibility: wgpu::ShaderStages::VERTEX_FRAGMENT,
-                ty: wgpu::BindingType::Buffer {
-                    ty: wgpu::BufferBindingType::Uniform,
-                    has_dynamic_offset: false,
-                    min_binding_size: None,
-                },
-                count: None,
-            }],
-            label: Some("model_bind_group_layout"),
-        });
+        let bind_group_layout =
+            ctx.device
+                .create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+                    entries: &[wgpu::BindGroupLayoutEntry {
+                        binding: 0,
+                        visibility: wgpu::ShaderStages::VERTEX_FRAGMENT,
+                        ty: wgpu::BindingType::Buffer {
+                            ty: wgpu::BufferBindingType::Uniform,
+                            has_dynamic_offset: false,
+                            min_binding_size: None,
+                        },
+                        count: None,
+                    }],
+                    label: Some("model_bind_group_layout"),
+                });
 
         let model_bind_group = ctx.device.create_bind_group(&wgpu::BindGroupDescriptor {
             layout: &bind_group_layout,
@@ -116,55 +119,59 @@ impl App for SkyboxDemo {
             label: Some("model_bind_group"),
         });
 
-        let pipeline_layout = ctx.device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-            label: Some("Model Pipeline Layout"),
-            bind_group_layouts: &[&bind_group_layout],
-            push_constant_ranges: &[],
-        });
+        let pipeline_layout = ctx
+            .device
+            .create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+                label: Some("Model Pipeline Layout"),
+                bind_group_layouts: &[&bind_group_layout],
+                push_constant_ranges: &[],
+            });
 
-        let model_pipeline = ctx.device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-            label: Some("Model Pipeline"),
-            layout: Some(&pipeline_layout),
-            vertex: wgpu::VertexState {
-                module: &shader,
-                entry_point: Some("vs_main"),
-                buffers: &[PositionNormal::desc()],
-                compilation_options: Default::default(),
-            },
-            fragment: Some(wgpu::FragmentState {
-                module: &shader,
-                entry_point: Some("fs_main"),
-                targets: &[Some(wgpu::ColorTargetState {
-                    format: wgpu::TextureFormat::Bgra8UnormSrgb,
-                    blend: Some(wgpu::BlendState::REPLACE),
-                    write_mask: wgpu::ColorWrites::ALL,
-                })],
-                compilation_options: Default::default(),
-            }),
-            primitive: wgpu::PrimitiveState {
-                topology: wgpu::PrimitiveTopology::TriangleList,
-                strip_index_format: None,
-                front_face: wgpu::FrontFace::Ccw,
-                cull_mode: Some(wgpu::Face::Back),
-                polygon_mode: wgpu::PolygonMode::Fill,
-                unclipped_depth: false,
-                conservative: false,
-            },
-            depth_stencil: Some(wgpu::DepthStencilState {
-                format: wgpu::TextureFormat::Depth32Float,
-                depth_write_enabled: true,
-                depth_compare: wgpu::CompareFunction::Less,
-                stencil: wgpu::StencilState::default(),
-                bias: wgpu::DepthBiasState::default(),
-            }),
-            multisample: wgpu::MultisampleState {
-                count: 1,
-                mask: !0,
-                alpha_to_coverage_enabled: false,
-            },
-            multiview: None,
-            cache: None,
-        });
+        let model_pipeline = ctx
+            .device
+            .create_render_pipeline(&wgpu::RenderPipelineDescriptor {
+                label: Some("Model Pipeline"),
+                layout: Some(&pipeline_layout),
+                vertex: wgpu::VertexState {
+                    module: &shader,
+                    entry_point: Some("vs_main"),
+                    buffers: &[PositionNormal::desc()],
+                    compilation_options: Default::default(),
+                },
+                fragment: Some(wgpu::FragmentState {
+                    module: &shader,
+                    entry_point: Some("fs_main"),
+                    targets: &[Some(wgpu::ColorTargetState {
+                        format: wgpu::TextureFormat::Bgra8UnormSrgb,
+                        blend: Some(wgpu::BlendState::REPLACE),
+                        write_mask: wgpu::ColorWrites::ALL,
+                    })],
+                    compilation_options: Default::default(),
+                }),
+                primitive: wgpu::PrimitiveState {
+                    topology: wgpu::PrimitiveTopology::TriangleList,
+                    strip_index_format: None,
+                    front_face: wgpu::FrontFace::Ccw,
+                    cull_mode: Some(wgpu::Face::Back),
+                    polygon_mode: wgpu::PolygonMode::Fill,
+                    unclipped_depth: false,
+                    conservative: false,
+                },
+                depth_stencil: Some(wgpu::DepthStencilState {
+                    format: wgpu::TextureFormat::Depth32Float,
+                    depth_write_enabled: true,
+                    depth_compare: wgpu::CompareFunction::Less,
+                    stencil: wgpu::StencilState::default(),
+                    bias: wgpu::DepthBiasState::default(),
+                }),
+                multisample: wgpu::MultisampleState {
+                    count: 1,
+                    mask: !0,
+                    alpha_to_coverage_enabled: false,
+                },
+                multiview: None,
+                cache: None,
+            });
 
         // Set initial camera position
         ctx.camera.transform.position = Vec3::new(0.0, 0.0, 5.0);
@@ -189,7 +196,7 @@ impl App for SkyboxDemo {
         // Update skybox uniforms
         let view_matrix = Mat4::from_rotation_translation(
             ctx.camera.transform.rotation,
-            Vec3::ZERO // No translation for skybox
+            Vec3::ZERO, // No translation for skybox
         );
         let view_proj = ctx.camera.projection_matrix() * view_matrix;
 
@@ -197,7 +204,11 @@ impl App for SkyboxDemo {
             view_proj: view_proj.to_cols_array_2d(),
         };
 
-        ctx.queue.write_buffer(&self.skybox_uniform_buffer, 0, bytemuck::cast_slice(&[skybox_uniforms]));
+        ctx.queue.write_buffer(
+            &self.skybox_uniform_buffer,
+            0,
+            bytemuck::cast_slice(&[skybox_uniforms]),
+        );
 
         // Update model uniforms
         let model_uniforms = ModelUniforms {
@@ -210,14 +221,22 @@ impl App for SkyboxDemo {
             _padding2: 0.0,
         };
 
-        ctx.queue.write_buffer(&self.model_uniform_buffer, 0, bytemuck::cast_slice(&[model_uniforms]));
+        ctx.queue.write_buffer(
+            &self.model_uniform_buffer,
+            0,
+            bytemuck::cast_slice(&[model_uniforms]),
+        );
     }
 
     fn render(&mut self, ctx: &mut RenderContext) -> Result<()> {
         let mut render_pass = ctx.begin_render_pass("Main Pass");
 
         // Render skybox
-        self.skybox.render(&mut render_pass, &self.skybox_bind_group, &self.skybox_texture_bind_group);
+        self.skybox.render(
+            &mut render_pass,
+            &self.skybox_bind_group,
+            &self.skybox_texture_bind_group,
+        );
 
         // Render sphere
         render_pass.set_pipeline(&self.model_pipeline);
@@ -252,6 +271,6 @@ mod tests {
     #[test]
     fn test_uniforms_sizes() {
         assert_eq!(std::mem::size_of::<SkyboxUniforms>(), 64);
-        assert_eq!(std::mem::size_of::<ModelUniforms>(), 192);
+        assert_eq!(std::mem::size_of::<ModelUniforms>(), 224);
     }
 }

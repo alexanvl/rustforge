@@ -1,8 +1,8 @@
 //! Debug HUD system for displaying runtime information
 
-use std::time::{Duration, Instant};
-use glam::{Vec2, Vec3};
 use crate::text::TextRenderer;
+use glam::{Vec2, Vec3};
+use std::time::{Duration, Instant};
 
 /// Debug information to display in HUD
 #[derive(Debug, Clone)]
@@ -50,7 +50,8 @@ impl FpsCounter {
 
         // Update FPS every few frames
         if self.frame_count % 10 == 0 && !self.frame_times.is_empty() {
-            let avg_frame_time: Duration = self.frame_times.iter().sum::<Duration>() / self.frame_times.len() as u32;
+            let avg_frame_time: Duration =
+                self.frame_times.iter().sum::<Duration>() / self.frame_times.len() as u32;
             self.current_fps = 1.0 / avg_frame_time.as_secs_f32();
         }
 
@@ -65,7 +66,8 @@ impl FpsCounter {
         if self.frame_times.is_empty() {
             0.0
         } else {
-            let avg_frame_time: Duration = self.frame_times.iter().sum::<Duration>() / self.frame_times.len() as u32;
+            let avg_frame_time: Duration =
+                self.frame_times.iter().sum::<Duration>() / self.frame_times.len() as u32;
             avg_frame_time.as_secs_f32() * 1000.0
         }
     }
@@ -92,7 +94,7 @@ impl DebugHud {
             fps_counter: FpsCounter::new(),
             show_hud: true,
             text_position: Vec2::new(10.0, 10.0), // Top-left corner with margin
-            text_color: [1.0, 1.0, 1.0, 1.0], // White text
+            text_color: [1.0, 1.0, 1.0, 1.0],     // White text
             text_scale: 1.0,
         }
     }
@@ -171,7 +173,9 @@ impl DebugHud {
     }
 
     pub fn add_custom_info(&mut self, debug_info: &mut DebugInfo, key: &str, value: &str) {
-        debug_info.custom_info.push((key.to_string(), value.to_string()));
+        debug_info
+            .custom_info
+            .push((key.to_string(), value.to_string()));
     }
 
     pub fn toggle_visibility(&mut self) {
@@ -226,7 +230,11 @@ mod tests {
 
         // FPS should be roughly 60 (allowing for some variance)
         let fps = fps_counter.fps();
-        assert!(fps > 50.0 && fps < 70.0, "FPS should be around 60, got {}", fps);
+        assert!(
+            fps > 50.0 && fps < 70.0,
+            "FPS should be around 60, got {}",
+            fps
+        );
     }
 
     #[test]
@@ -262,7 +270,13 @@ mod tests {
         hud.add_custom_info(&mut debug_info, "Render Mode", "Instanced");
 
         assert_eq!(debug_info.custom_info.len(), 2);
-        assert_eq!(debug_info.custom_info[0], ("Planets".to_string(), "6".to_string()));
-        assert_eq!(debug_info.custom_info[1], ("Render Mode".to_string(), "Instanced".to_string()));
+        assert_eq!(
+            debug_info.custom_info[0],
+            ("Planets".to_string(), "6".to_string())
+        );
+        assert_eq!(
+            debug_info.custom_info[1],
+            ("Render Mode".to_string(), "Instanced".to_string())
+        );
     }
 }

@@ -1,20 +1,20 @@
 //! RustForge Game Engine
 
+use specs::WorldExt;
 use std::sync::Arc;
 use winit::{
-    event::{Event, WindowEvent, ElementState},
+    event::{ElementState, Event, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
-    window::Window,
     keyboard::KeyCode,
+    window::Window,
 };
-use specs::WorldExt;
 
+use rustforge_audio::AudioManager;
 use rustforge_core::prelude::*;
 use rustforge_ecs::prelude::*;
 use rustforge_graphics::prelude::*;
-use rustforge_physics::prelude::*;
 use rustforge_input::InputState;
-use rustforge_audio::AudioManager;
+use rustforge_physics::prelude::*;
 
 pub mod systems;
 
@@ -38,17 +38,20 @@ impl Engine {
 
         // Create window
         let window = Arc::new(
-            event_loop.create_window(
-                winit::window::WindowAttributes::default()
-                    .with_title("RustForge Engine")
-                    .with_inner_size(winit::dpi::LogicalSize::new(1280, 720))
-            )
-            .map_err(|e| Error::Init(format!("Failed to create window: {}", e)))?
+            event_loop
+                .create_window(
+                    winit::window::WindowAttributes::default()
+                        .with_title("RustForge Engine")
+                        .with_inner_size(winit::dpi::LogicalSize::new(1280, 720)),
+                )
+                .map_err(|e| Error::Init(format!("Failed to create window: {}", e)))?,
         );
 
         // Initialize subsystems
         let mut ecs_world = EcsWorld::new()?;
-        let physics_world = Arc::new(std::sync::Mutex::new(PhysicsWorld::new(Vec3::new(0.0, -9.81, 0.0))));
+        let physics_world = Arc::new(std::sync::Mutex::new(PhysicsWorld::new(Vec3::new(
+            0.0, -9.81, 0.0,
+        ))));
         // TODO: Re-enable renderer once raw-window-handle compatibility is fixed
         // let renderer = Renderer::new(window.clone())?;
         let input_state = InputState::new();
@@ -177,10 +180,10 @@ impl Engine {
 
     /// Fixed timestep update for physics
     fn fixed_update(&mut self) {
-        use specs::RunNow;
         use rustforge_physics::systems::{
-            PhysicsInitSystem, PhysicsForceSystem, PhysicsStepSystem, PhysicsSyncSystem
+            PhysicsForceSystem, PhysicsInitSystem, PhysicsStepSystem, PhysicsSyncSystem,
         };
+        use specs::RunNow;
 
         // Run physics systems in order
         let mut init_system = PhysicsInitSystem;
@@ -222,6 +225,6 @@ pub mod prelude {
     pub use rustforge_core::prelude::*;
     pub use rustforge_ecs::prelude::*;
     pub use rustforge_graphics::prelude::*;
-    pub use rustforge_physics::prelude::*;
     pub use rustforge_input::InputState;
+    pub use rustforge_physics::prelude::*;
 }

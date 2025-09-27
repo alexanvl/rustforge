@@ -1,9 +1,9 @@
 //! Application trait and configuration
 
 use crate::context::{Context, RenderContext};
-pub use winit::event::{WindowEvent, ElementState};
-pub use winit::keyboard::{KeyCode, PhysicalKey};
 use rustforge_core::prelude::*;
+pub use winit::event::{ElementState, WindowEvent};
+pub use winit::keyboard::{KeyCode, PhysicalKey};
 
 /// Configuration for creating an application
 #[derive(Debug, Clone)]

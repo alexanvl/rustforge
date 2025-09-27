@@ -1,8 +1,8 @@
 //! Generic engine systems that provide common functionality
 
-use specs::{System, ReadStorage, WriteStorage, Read, Join};
 use rustforge_core::prelude::*;
 use rustforge_ecs::prelude::*;
+use specs::{Join, Read, ReadStorage, System, WriteStorage};
 
 /// System that applies velocity to transform components
 /// This is a generic system that can be used by any game logic
@@ -23,7 +23,8 @@ impl<'a> System<'a> for VelocitySystem {
 
             // Apply angular velocity to rotation
             if velocity.angular.length_squared() > 0.0 {
-                let rotation_delta = glam::Quat::from_scaled_axis(velocity.angular * time.delta_seconds());
+                let rotation_delta =
+                    glam::Quat::from_scaled_axis(velocity.angular * time.delta_seconds());
                 transform.transform.rotation = transform.transform.rotation * rotation_delta;
             }
         }

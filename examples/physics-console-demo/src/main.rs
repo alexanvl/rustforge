@@ -1,10 +1,10 @@
 //! Physics Console Demo - Shows physics simulation with visual ASCII output
 //! This demonstrates the physics system working without complex rendering
 
-use rustforge_physics::prelude::*;
 use glam::Vec3;
-use std::time::{Duration, Instant};
+use rustforge_physics::prelude::*;
 use std::thread;
+use std::time::{Duration, Instant};
 
 const WIDTH: usize = 60;
 const HEIGHT: usize = 20;
@@ -115,14 +115,18 @@ impl PhysicsDemo {
 
         // Print physics info
         println!();
-        println!("Physics Demo - Time: {:.2}s", self.time.elapsed().as_secs_f32());
+        println!(
+            "Physics Demo - Time: {:.2}s",
+            self.time.elapsed().as_secs_f32()
+        );
         println!("Entities: {} | Gravity: -9.81 m/s²", self.entities.len());
 
         // Show some entity positions
         for (i, entity) in self.entities.iter().enumerate().take(3) {
-            println!("Entity {}: pos=({:.1}, {:.1}) vel=({:.1}, {:.1})",
-                     i, entity.position.x, entity.position.y,
-                     entity.velocity.x, entity.velocity.y);
+            println!(
+                "Entity {}: pos=({:.1}, {:.1}) vel=({:.1}, {:.1})",
+                i, entity.position.x, entity.position.y, entity.velocity.x, entity.velocity.y
+            );
         }
     }
 

@@ -1,18 +1,18 @@
 //! Sphere Demo - Rotating sphere with material and point light
 //! This demonstrates proper 3D graphics rendering with lighting
 
+use bytemuck::{Pod, Zeroable};
+use glam::{Mat4, Quat, Vec3};
+use rustforge_core::prelude::*;
+use rustforge_graphics::prelude::*;
+use std::time::Instant;
+use wgpu::util::DeviceExt;
 use winit::{
+    dpi::LogicalSize,
     event::{Event, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
     window::{Window, WindowBuilder},
-    dpi::LogicalSize,
 };
-use wgpu::util::DeviceExt;
-use rustforge_core::prelude::*;
-use rustforge_graphics::prelude::*;
-use glam::{Vec3, Mat4, Quat};
-use std::time::Instant;
-use bytemuck::{Pod, Zeroable};
 
 const WIDTH: u32 = 800;
 const HEIGHT: u32 = 600;
@@ -156,11 +156,12 @@ impl SphereDemo {
         });
 
         // Create render pipeline
-        let render_pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-            label: Some("Render Pipeline Layout"),
-            bind_group_layouts: &[&bind_group_layout],
-            push_constant_ranges: &[],
-        });
+        let render_pipeline_layout =
+            device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+                label: Some("Render Pipeline Layout"),
+                bind_group_layouts: &[&bind_group_layout],
+                push_constant_ranges: &[],
+            });
 
         let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
             label: Some("Render Pipeline"),
@@ -290,13 +291,19 @@ impl SphereDemo {
     }
 
     fn render(&mut self) -> Result<()> {
-        let output = self.surface.get_current_texture()
+        let output = self
+            .surface
+            .get_current_texture()
             .map_err(|e| Error::Graphics(format!("Failed to get current texture: {}", e)))?;
-        let view = output.texture.create_view(&wgpu::TextureViewDescriptor::default());
+        let view = output
+            .texture
+            .create_view(&wgpu::TextureViewDescriptor::default());
 
-        let mut encoder = self.device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
-            label: Some("Render Encoder"),
-        });
+        let mut encoder = self
+            .device
+            .create_command_encoder(&wgpu::CommandEncoderDescriptor {
+                label: Some("Render Encoder"),
+            });
 
         // Update uniforms
         let elapsed = self.start_time.elapsed().as_secs_f32();
@@ -316,7 +323,8 @@ impl SphereDemo {
             _padding3: 0.0,
         };
 
-        self.queue.write_buffer(&self.uniform_buffer, 0, bytemuck::cast_slice(&[uniforms]));
+        self.queue
+            .write_buffer(&self.uniform_buffer, 0, bytemuck::cast_slice(&[uniforms]));
 
         {
             let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
@@ -363,17 +371,15 @@ impl SphereDemo {
             *control_flow = ControlFlow::Poll;
 
             match event {
-                Event::WindowEvent { ref event, .. } => {
-                    match event {
-                        WindowEvent::CloseRequested => {
-                            *control_flow = ControlFlow::Exit;
-                        }
-                        WindowEvent::Resized(physical_size) => {
-                            self.resize(*physical_size);
-                        }
-                        _ => {}
+                Event::WindowEvent { ref event, .. } => match event {
+                    WindowEvent::CloseRequested => {
+                        *control_flow = ControlFlow::Exit;
                     }
-                }
+                    WindowEvent::Resized(physical_size) => {
+                        self.resize(*physical_size);
+                    }
+                    _ => {}
+                },
                 Event::MainEventsCleared => {
                     self.update();
                     if let Err(e) = self.render() {

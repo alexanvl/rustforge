@@ -1,8 +1,8 @@
 //! Rigid body utilities
 
-use rapier3d::prelude::*;
-use rapier3d::na::{UnitQuaternion, Quaternion};
 use glam::Vec3;
+use rapier3d::na::{Quaternion, UnitQuaternion};
+use rapier3d::prelude::*;
 
 /// Rigid body type wrapper
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -31,21 +31,14 @@ pub fn create_rigid_body(
     let iso = Isometry::from_parts(
         vector![position.x, position.y, position.z].into(),
         UnitQuaternion::new_normalize(Quaternion::new(
-            rotation.w,
-            rotation.x,
-            rotation.y,
-            rotation.z,
+            rotation.w, rotation.x, rotation.y, rotation.z,
         )),
     );
 
     match body_type {
-        RigidBodyType::Dynamic => RigidBodyBuilder::dynamic()
-            .position(iso)
-            .ccd_enabled(true),
-        RigidBodyType::Kinematic => RigidBodyBuilder::kinematic_position_based()
-            .position(iso),
-        RigidBodyType::Static => RigidBodyBuilder::fixed()
-            .position(iso),
+        RigidBodyType::Dynamic => RigidBodyBuilder::dynamic().position(iso).ccd_enabled(true),
+        RigidBodyType::Kinematic => RigidBodyBuilder::kinematic_position_based().position(iso),
+        RigidBodyType::Static => RigidBodyBuilder::fixed().position(iso),
     }
 }
 
@@ -107,7 +100,10 @@ mod tests {
 
         let body = create_rigid_body(RigidBodyType::Kinematic, pos, rot).build();
 
-        assert_eq!(body.body_type(), rapier3d::dynamics::RigidBodyType::KinematicPositionBased);
+        assert_eq!(
+            body.body_type(),
+            rapier3d::dynamics::RigidBodyType::KinematicPositionBased
+        );
 
         // Verify position
         let translation = body.translation();

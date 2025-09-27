@@ -24,11 +24,8 @@ impl App for SimpleDemo {
 
         // Simple animation - rotate camera position
         let radius = 5.0;
-        ctx.camera.transform.position = Vec3::new(
-            radius * self.time.cos(),
-            2.0,
-            radius * self.time.sin(),
-        );
+        ctx.camera.transform.position =
+            Vec3::new(radius * self.time.cos(), 2.0, radius * self.time.sin());
 
         // Look at origin
         // Look at origin

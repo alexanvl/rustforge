@@ -1,10 +1,10 @@
 //! Graphics-related ECS systems
 
-use specs::{System, ReadExpect, ReadStorage};
+use specs::{ReadExpect, ReadStorage, System};
 // use rustforge_core::prelude::*;
-use rustforge_ecs::prelude::*;
 use crate::components::*;
 use crate::Renderer;
+use rustforge_ecs::prelude::*;
 
 /// Skybox rendering system that renders skyboxes first (behind everything)
 pub struct SkyboxRenderSystem;
@@ -33,7 +33,10 @@ impl<'a> System<'a> for SkyboxRenderSystem {
 
             // TODO: Implement actual skybox rendering
             // For now, just log that we found a skybox
-            println!("Found active skybox at position: {:?}", transform.transform.position);
+            println!(
+                "Found active skybox at position: {:?}",
+                transform.transform.position
+            );
         }
     }
 }

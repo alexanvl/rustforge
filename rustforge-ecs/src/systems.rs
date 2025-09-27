@@ -1,8 +1,8 @@
 //! Core ECS systems
 
-use specs::{System, ReadStorage, WriteStorage, Read, Join};
+use crate::components::{Active, TransformComponent, Velocity};
 use rustforge_core::prelude::*;
-use crate::components::{TransformComponent, Velocity, Active};
+use specs::{Join, Read, ReadStorage, System, WriteStorage};
 
 /// System that updates transforms based on velocity
 pub struct VelocitySystem;
@@ -32,4 +32,3 @@ impl<'a> System<'a> for VelocitySystem {
         }
     }
 }
-

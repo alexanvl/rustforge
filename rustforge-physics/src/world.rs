@@ -67,7 +67,8 @@ impl PhysicsWorld {
         );
 
         // Update query pipeline
-        self.query_pipeline.update(&self.rigid_body_set, &self.collider_set);
+        self.query_pipeline
+            .update(&self.rigid_body_set, &self.collider_set);
     }
 
     /// Add rigid body to world
@@ -84,7 +85,9 @@ impl PhysicsWorld {
         collider: Collider,
         parent: RigidBodyHandle,
     ) -> ColliderHandle {
-        let handle = self.collider_set.insert_with_parent(collider, parent, &mut self.rigid_body_set);
+        let handle =
+            self.collider_set
+                .insert_with_parent(collider, parent, &mut self.rigid_body_set);
         self.collider_map.insert(entity, handle);
         handle
     }
@@ -116,7 +119,7 @@ mod tests {
     use super::*;
     use crate::rigid_body::create_rigid_body;
     use crate::RigidBodyType;
-    use specs::{WorldExt, Builder};
+    use specs::{Builder, WorldExt};
 
     #[test]
     fn test_physics_world_creation() {
@@ -143,8 +146,9 @@ mod tests {
         let body = create_rigid_body(
             RigidBodyType::Dynamic,
             Vec3::new(1.0, 2.0, 3.0),
-            glam::Quat::IDENTITY
-        ).build();
+            glam::Quat::IDENTITY,
+        )
+        .build();
 
         let handle = world.add_rigid_body(entity, body);
 
@@ -162,11 +166,8 @@ mod tests {
         let entity = world_specs.create_entity().build();
 
         // First add a rigid body
-        let body = create_rigid_body(
-            RigidBodyType::Dynamic,
-            Vec3::ZERO,
-            glam::Quat::IDENTITY
-        ).build();
+        let body =
+            create_rigid_body(RigidBodyType::Dynamic, Vec3::ZERO, glam::Quat::IDENTITY).build();
         let body_handle = world.add_rigid_body(entity, body);
 
         // Then add a collider
@@ -189,14 +190,13 @@ mod tests {
         let body = create_rigid_body(
             RigidBodyType::Dynamic,
             Vec3::new(0.0, 10.0, 0.0),
-            glam::Quat::IDENTITY
-        ).build();
+            glam::Quat::IDENTITY,
+        )
+        .build();
         let handle = world.add_rigid_body(entity, body);
 
         // Add a collider to give the body mass
-        let collider = ColliderBuilder::ball(1.0)
-            .density(1.0)
-            .build();
+        let collider = ColliderBuilder::ball(1.0).density(1.0).build();
         world.add_collider(entity, collider, handle);
 
         // Get initial position
@@ -207,6 +207,11 @@ mod tests {
 
         // Position should have changed due to gravity
         let after_y = world.get_rigid_body(handle).unwrap().translation().y;
-        assert!(after_y < initial_y, "Body should have fallen due to gravity. Initial: {}, After: {}", initial_y, after_y);
+        assert!(
+            after_y < initial_y,
+            "Body should have fallen due to gravity. Initial: {}, After: {}",
+            initial_y,
+            after_y
+        );
     }
 }

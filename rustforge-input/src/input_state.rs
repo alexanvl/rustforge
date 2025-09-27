@@ -1,10 +1,10 @@
 //! Input handling module for RustForge
 
+use glam::Vec2;
 use std::collections::HashSet;
+use winit::dpi::PhysicalPosition;
 use winit::event::{ElementState, MouseButton, WindowEvent};
 use winit::keyboard::{KeyCode, PhysicalKey};
-use winit::dpi::PhysicalPosition;
-use glam::Vec2;
 
 /// Input state tracking
 #[derive(Debug, Clone)]

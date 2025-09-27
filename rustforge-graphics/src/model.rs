@@ -1,8 +1,8 @@
 //! High-level model abstraction for common 3D shapes
 
 use crate::vertex::PositionNormal;
-use wgpu::util::DeviceExt;
 use bytemuck::{Pod, Zeroable};
+use wgpu::util::DeviceExt;
 
 /// Standard uniforms for model rendering
 #[repr(C)]
@@ -22,6 +22,7 @@ pub struct Model {
     vertex_buffer: wgpu::Buffer,
     index_buffer: wgpu::Buffer,
     pub num_indices: u32,
+    #[allow(dead_code)]
     name: String,
 }
 
@@ -126,41 +127,41 @@ impl Model {
     fn create_cube() -> (Vec<PositionNormal>, Vec<u32>) {
         let vertices = vec![
             // Front face
-            PositionNormal::new([-0.5, -0.5,  0.5], [0.0, 0.0, 1.0]),
-            PositionNormal::new([ 0.5, -0.5,  0.5], [0.0, 0.0, 1.0]),
-            PositionNormal::new([ 0.5,  0.5,  0.5], [0.0, 0.0, 1.0]),
-            PositionNormal::new([-0.5,  0.5,  0.5], [0.0, 0.0, 1.0]),
+            PositionNormal::new([-0.5, -0.5, 0.5], [0.0, 0.0, 1.0]),
+            PositionNormal::new([0.5, -0.5, 0.5], [0.0, 0.0, 1.0]),
+            PositionNormal::new([0.5, 0.5, 0.5], [0.0, 0.0, 1.0]),
+            PositionNormal::new([-0.5, 0.5, 0.5], [0.0, 0.0, 1.0]),
             // Back face
             PositionNormal::new([-0.5, -0.5, -0.5], [0.0, 0.0, -1.0]),
-            PositionNormal::new([-0.5,  0.5, -0.5], [0.0, 0.0, -1.0]),
-            PositionNormal::new([ 0.5,  0.5, -0.5], [0.0, 0.0, -1.0]),
-            PositionNormal::new([ 0.5, -0.5, -0.5], [0.0, 0.0, -1.0]),
+            PositionNormal::new([-0.5, 0.5, -0.5], [0.0, 0.0, -1.0]),
+            PositionNormal::new([0.5, 0.5, -0.5], [0.0, 0.0, -1.0]),
+            PositionNormal::new([0.5, -0.5, -0.5], [0.0, 0.0, -1.0]),
             // Top face
-            PositionNormal::new([-0.5,  0.5, -0.5], [0.0, 1.0, 0.0]),
-            PositionNormal::new([-0.5,  0.5,  0.5], [0.0, 1.0, 0.0]),
-            PositionNormal::new([ 0.5,  0.5,  0.5], [0.0, 1.0, 0.0]),
-            PositionNormal::new([ 0.5,  0.5, -0.5], [0.0, 1.0, 0.0]),
+            PositionNormal::new([-0.5, 0.5, -0.5], [0.0, 1.0, 0.0]),
+            PositionNormal::new([-0.5, 0.5, 0.5], [0.0, 1.0, 0.0]),
+            PositionNormal::new([0.5, 0.5, 0.5], [0.0, 1.0, 0.0]),
+            PositionNormal::new([0.5, 0.5, -0.5], [0.0, 1.0, 0.0]),
             // Bottom face
             PositionNormal::new([-0.5, -0.5, -0.5], [0.0, -1.0, 0.0]),
-            PositionNormal::new([ 0.5, -0.5, -0.5], [0.0, -1.0, 0.0]),
-            PositionNormal::new([ 0.5, -0.5,  0.5], [0.0, -1.0, 0.0]),
-            PositionNormal::new([-0.5, -0.5,  0.5], [0.0, -1.0, 0.0]),
+            PositionNormal::new([0.5, -0.5, -0.5], [0.0, -1.0, 0.0]),
+            PositionNormal::new([0.5, -0.5, 0.5], [0.0, -1.0, 0.0]),
+            PositionNormal::new([-0.5, -0.5, 0.5], [0.0, -1.0, 0.0]),
             // Right face
-            PositionNormal::new([ 0.5, -0.5, -0.5], [1.0, 0.0, 0.0]),
-            PositionNormal::new([ 0.5,  0.5, -0.5], [1.0, 0.0, 0.0]),
-            PositionNormal::new([ 0.5,  0.5,  0.5], [1.0, 0.0, 0.0]),
-            PositionNormal::new([ 0.5, -0.5,  0.5], [1.0, 0.0, 0.0]),
+            PositionNormal::new([0.5, -0.5, -0.5], [1.0, 0.0, 0.0]),
+            PositionNormal::new([0.5, 0.5, -0.5], [1.0, 0.0, 0.0]),
+            PositionNormal::new([0.5, 0.5, 0.5], [1.0, 0.0, 0.0]),
+            PositionNormal::new([0.5, -0.5, 0.5], [1.0, 0.0, 0.0]),
             // Left face
             PositionNormal::new([-0.5, -0.5, -0.5], [-1.0, 0.0, 0.0]),
-            PositionNormal::new([-0.5, -0.5,  0.5], [-1.0, 0.0, 0.0]),
-            PositionNormal::new([-0.5,  0.5,  0.5], [-1.0, 0.0, 0.0]),
-            PositionNormal::new([-0.5,  0.5, -0.5], [-1.0, 0.0, 0.0]),
+            PositionNormal::new([-0.5, -0.5, 0.5], [-1.0, 0.0, 0.0]),
+            PositionNormal::new([-0.5, 0.5, 0.5], [-1.0, 0.0, 0.0]),
+            PositionNormal::new([-0.5, 0.5, -0.5], [-1.0, 0.0, 0.0]),
         ];
 
         let indices = vec![
-            0,  1,  2,  2,  3,  0,  // front
-            4,  5,  6,  6,  7,  4,  // back
-            8,  9,  10, 10, 11, 8,  // top
+            0, 1, 2, 2, 3, 0, // front
+            4, 5, 6, 6, 7, 4, // back
+            8, 9, 10, 10, 11, 8, // top
             12, 13, 14, 14, 15, 12, // bottom
             16, 17, 18, 18, 19, 16, // right
             20, 21, 22, 22, 23, 20, // left

@@ -1,6 +1,6 @@
 //! Math utilities and extensions for RustForge
 
-use glam::{Vec3, Quat, Mat4};
+use glam::{Mat4, Quat, Vec3};
 
 /// Transform component for position, rotation, and scale
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -22,7 +22,11 @@ impl Default for Transform {
 
 impl Transform {
     pub fn new(position: Vec3, rotation: Quat, scale: Vec3) -> Self {
-        Self { position, rotation, scale }
+        Self {
+            position,
+            rotation,
+            scale,
+        }
     }
 
     /// Create transform matrix
@@ -49,7 +53,7 @@ impl Transform {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use glam::{Vec3, Quat};
+    use glam::{Quat, Vec3};
 
     #[test]
     fn test_transform_default() {
@@ -77,11 +81,7 @@ mod tests {
         let matrix = t.matrix();
         assert_eq!(matrix, Mat4::IDENTITY);
 
-        let t2 = Transform::new(
-            Vec3::new(1.0, 0.0, 0.0),
-            Quat::IDENTITY,
-            Vec3::ONE
-        );
+        let t2 = Transform::new(Vec3::new(1.0, 0.0, 0.0), Quat::IDENTITY, Vec3::ONE);
         let matrix2 = t2.matrix();
         let expected = Mat4::from_translation(Vec3::new(1.0, 0.0, 0.0));
         assert_eq!(matrix2, expected);
@@ -100,7 +100,7 @@ mod tests {
         let t2 = Transform::new(
             Vec3::ZERO,
             Quat::from_rotation_y(std::f32::consts::PI / 2.0), // 90 degrees
-            Vec3::ONE
+            Vec3::ONE,
         );
 
         // After 90 degree Y rotation, forward should point left (-X)

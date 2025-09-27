@@ -1,18 +1,14 @@
 //! Vulkan initialization and device management
 
+use rustforge_core::prelude::*;
 use std::sync::Arc;
 use vulkano::{
-    VulkanLibrary,
+    device::{physical::PhysicalDevice, Device, Queue},
     instance::{Instance, InstanceCreateInfo},
-    device::{
-        Device, Queue,
-        physical::PhysicalDevice,
-    },
     swapchain::Surface,
-    Version,
+    Version, VulkanLibrary,
 };
 use winit::window::Window;
-use rustforge_core::prelude::*;
 
 /// Vulkan context holding device and queues
 pub struct VulkanContext {
@@ -50,7 +46,10 @@ impl VulkanContext {
         //     .map_err(|e| Error::Init(format!("Failed to create surface: {}", e)))?;
 
         // TEMPORARY: Skip surface creation for now
-        Err(Error::Init("Surface creation temporarily disabled due to raw-window-handle version conflict".into()))
+        Err(Error::Init(
+            "Surface creation temporarily disabled due to raw-window-handle version conflict"
+                .into(),
+        ))
 
         /* TODO: Re-enable once surface creation works
         // Select physical device

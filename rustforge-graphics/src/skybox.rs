@@ -1,15 +1,16 @@
 //! High-level skybox abstraction
 
 use crate::vertex::Position;
-use wgpu::util::DeviceExt;
 use image::GenericImageView;
 use rustforge_core::prelude::*;
+use wgpu::util::DeviceExt;
 
 /// A skybox with cubemap textures
 pub struct Skybox {
     vertex_buffer: wgpu::Buffer,
     index_buffer: wgpu::Buffer,
     num_indices: u32,
+    #[allow(dead_code)]
     texture: wgpu::Texture,
     texture_view: wgpu::TextureView,
     sampler: wgpu::Sampler,
@@ -81,27 +82,28 @@ impl Skybox {
             label: Some("skybox_bind_group_layout"),
         });
 
-        let texture_bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
-            entries: &[
-                wgpu::BindGroupLayoutEntry {
-                    binding: 0,
-                    visibility: wgpu::ShaderStages::FRAGMENT,
-                    ty: wgpu::BindingType::Texture {
-                        multisampled: false,
-                        view_dimension: wgpu::TextureViewDimension::Cube,
-                        sample_type: wgpu::TextureSampleType::Float { filterable: true },
+        let texture_bind_group_layout =
+            device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+                entries: &[
+                    wgpu::BindGroupLayoutEntry {
+                        binding: 0,
+                        visibility: wgpu::ShaderStages::FRAGMENT,
+                        ty: wgpu::BindingType::Texture {
+                            multisampled: false,
+                            view_dimension: wgpu::TextureViewDimension::Cube,
+                            sample_type: wgpu::TextureSampleType::Float { filterable: true },
+                        },
+                        count: None,
                     },
-                    count: None,
-                },
-                wgpu::BindGroupLayoutEntry {
-                    binding: 1,
-                    visibility: wgpu::ShaderStages::FRAGMENT,
-                    ty: wgpu::BindingType::Sampler(wgpu::SamplerBindingType::Filtering),
-                    count: None,
-                },
-            ],
-            label: Some("skybox_texture_bind_group_layout"),
-        });
+                    wgpu::BindGroupLayoutEntry {
+                        binding: 1,
+                        visibility: wgpu::ShaderStages::FRAGMENT,
+                        ty: wgpu::BindingType::Sampler(wgpu::SamplerBindingType::Filtering),
+                        count: None,
+                    },
+                ],
+                label: Some("skybox_texture_bind_group_layout"),
+            });
 
         // Create pipeline
         let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
@@ -209,14 +211,14 @@ impl Skybox {
         vec![
             // Front face (-Z)
             Position::new([-1.0, -1.0, -1.0]),
-            Position::new([ 1.0, -1.0, -1.0]),
-            Position::new([ 1.0,  1.0, -1.0]),
-            Position::new([-1.0,  1.0, -1.0]),
+            Position::new([1.0, -1.0, -1.0]),
+            Position::new([1.0, 1.0, -1.0]),
+            Position::new([-1.0, 1.0, -1.0]),
             // Back face (+Z)
-            Position::new([-1.0, -1.0,  1.0]),
-            Position::new([-1.0,  1.0,  1.0]),
-            Position::new([ 1.0,  1.0,  1.0]),
-            Position::new([ 1.0, -1.0,  1.0]),
+            Position::new([-1.0, -1.0, 1.0]),
+            Position::new([-1.0, 1.0, 1.0]),
+            Position::new([1.0, 1.0, 1.0]),
+            Position::new([1.0, -1.0, 1.0]),
         ]
     }
 
@@ -246,8 +248,12 @@ impl Skybox {
         ];
 
         // Load first image to get dimensions
-        let first_img = image::open(&face_paths[0])
-            .map_err(|e| Error::Graphics(format!("Failed to load cubemap face {}: {}", face_paths[0], e)))?;
+        let first_img = image::open(&face_paths[0]).map_err(|e| {
+            Error::Graphics(format!(
+                "Failed to load cubemap face {}: {}",
+                face_paths[0], e
+            ))
+        })?;
         let dimensions = first_img.dimensions();
 
         // Create cubemap texture

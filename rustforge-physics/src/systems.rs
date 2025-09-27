@@ -1,12 +1,12 @@
 //! Physics ECS systems
 
-use std::sync::{Arc, Mutex};
-use specs::{System, ReadStorage, WriteStorage, Read, Write, Join, Entities, LendJoin};
+use crate::components::{Collider as EcsCollider, Force, Impulse, PhysicsBody};
+use crate::{rigid_body::create_rigid_body, PhysicsWorld};
+use rapier3d::prelude::*;
 use rustforge_core::prelude::*;
 use rustforge_ecs::prelude::*;
-use crate::components::{PhysicsBody, Collider as EcsCollider, Force, Impulse};
-use crate::{PhysicsWorld, rigid_body::create_rigid_body};
-use rapier3d::prelude::*;
+use specs::{Entities, Join, LendJoin, Read, ReadStorage, System, Write, WriteStorage};
+use std::sync::{Arc, Mutex};
 
 /// System that initializes physics bodies
 pub struct PhysicsInitSystem;
@@ -20,7 +20,10 @@ impl<'a> System<'a> for PhysicsInitSystem {
         ReadStorage<'a, TransformComponent>,
     );
 
-    fn run(&mut self, (entities, physics_world_arc, mut bodies, mut colliders, transforms): Self::SystemData) {
+    fn run(
+        &mut self,
+        (entities, physics_world_arc, mut bodies, mut colliders, transforms): Self::SystemData,
+    ) {
         let mut physics_world = physics_world_arc.lock().unwrap();
         // Initialize rigid bodies
         for (entity, body, transform) in (&entities, &mut bodies, &transforms).join() {
@@ -45,7 +48,9 @@ impl<'a> System<'a> for PhysicsInitSystem {
         // Initialize colliders
         for (entity, collider, body) in (&entities, &mut colliders, &bodies).join() {
             if collider.handle.is_none() && body.handle.is_some() {
-                let col = collider.shape.build_collider()
+                let col = collider
+                    .shape
+                    .build_collider()
                     .friction(collider.friction)
                     .restitution(collider.restitution)
                     .sensor(collider.is_sensor)
@@ -76,7 +81,10 @@ impl<'a> System<'a> for PhysicsForceSystem {
             if let Some(handle) = body.handle {
                 if let Some(rb) = physics_world.get_rigid_body_mut(handle) {
                     rb.add_force(vector![force.force.x, force.force.y, force.force.z], true);
-                    rb.add_torque(vector![force.torque.x, force.torque.y, force.torque.z], true);
+                    rb.add_torque(
+                        vector![force.torque.x, force.torque.y, force.torque.z],
+                        true,
+                    );
                 }
             }
         }
@@ -88,8 +96,14 @@ impl<'a> System<'a> for PhysicsForceSystem {
         for (body, impulse) in (&bodies, &impulses).join() {
             if let Some(handle) = body.handle {
                 if let Some(rb) = physics_world.get_rigid_body_mut(handle) {
-                    rb.apply_impulse(vector![impulse.linear.x, impulse.linear.y, impulse.linear.z], true);
-                    rb.apply_torque_impulse(vector![impulse.angular.x, impulse.angular.y, impulse.angular.z], true);
+                    rb.apply_impulse(
+                        vector![impulse.linear.x, impulse.linear.y, impulse.linear.z],
+                        true,
+                    );
+                    rb.apply_torque_impulse(
+                        vector![impulse.angular.x, impulse.angular.y, impulse.angular.z],
+                        true,
+                    );
                 }
             }
         }
@@ -110,9 +124,14 @@ impl<'a> System<'a> for PhysicsSyncSystem {
         WriteStorage<'a, Velocity>,
     );
 
-    fn run(&mut self, (physics_world_arc, bodies, mut transforms, mut velocities): Self::SystemData) {
+    fn run(
+        &mut self,
+        (physics_world_arc, bodies, mut transforms, mut velocities): Self::SystemData,
+    ) {
         let physics_world = physics_world_arc.lock().unwrap();
-        for (body, transform, vel_opt) in (&bodies, &mut transforms, (&mut velocities).maybe()).join() {
+        for (body, transform, vel_opt) in
+            (&bodies, &mut transforms, (&mut velocities).maybe()).join()
+        {
             if let Some(handle) = body.handle {
                 if let Some(rb) = physics_world.get_rigid_body(handle) {
                     // Update transform
@@ -120,7 +139,8 @@ impl<'a> System<'a> for PhysicsSyncSystem {
                     let rot = rb.rotation();
 
                     transform.transform.position = Vec3::new(pos.x, pos.y, pos.z);
-                    transform.transform.rotation = glam::Quat::from_xyzw(rot.i, rot.j, rot.k, rot.w);
+                    transform.transform.rotation =
+                        glam::Quat::from_xyzw(rot.i, rot.j, rot.k, rot.w);
 
                     // Update velocity if component exists
                     if let Some(velocity) = vel_opt {
@@ -140,10 +160,7 @@ impl<'a> System<'a> for PhysicsSyncSystem {
 pub struct PhysicsStepSystem;
 
 impl<'a> System<'a> for PhysicsStepSystem {
-    type SystemData = (
-        Write<'a, Arc<Mutex<PhysicsWorld>>>,
-        Read<'a, Time>,
-    );
+    type SystemData = (Write<'a, Arc<Mutex<PhysicsWorld>>>, Read<'a, Time>);
 
     fn run(&mut self, (physics_world_arc, _time): Self::SystemData) {
         let mut physics_world = physics_world_arc.lock().unwrap();

@@ -1,9 +1,9 @@
 //! Main renderer implementation
 
+use crate::vulkan::VulkanContext;
+use rustforge_core::prelude::*;
 use std::sync::Arc;
 use winit::window::Window;
-use rustforge_core::prelude::*;
-use crate::vulkan::VulkanContext;
 // use crate::camera::Camera;
 
 /// Main renderer handling Vulkan rendering
@@ -17,9 +17,7 @@ impl Renderer {
     pub fn new(window: Arc<Window>) -> Result<Self> {
         let context = VulkanContext::new(window)?;
 
-        Ok(Self {
-            _context: context,
-        })
+        Ok(Self { _context: context })
     }
 
     /// Begin frame rendering

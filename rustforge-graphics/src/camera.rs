@@ -25,7 +25,7 @@ impl Camera {
             camera_type: CameraType::Perspective {
                 fov: fov_degrees.to_radians(),
                 near,
-                far
+                far,
             },
             aspect_ratio,
         }
@@ -59,9 +59,12 @@ impl Camera {
                 let half_width = size * self.aspect_ratio * 0.5;
                 let half_height = size * 0.5;
                 Mat4::orthographic_rh(
-                    -half_width, half_width,
-                    -half_height, half_height,
-                    near, far,
+                    -half_width,
+                    half_width,
+                    -half_height,
+                    half_height,
+                    near,
+                    far,
                 )
             }
         }
@@ -76,16 +79,16 @@ impl Camera {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use glam::{Vec3, Quat};
+    use glam::{Quat, Vec3};
 
     #[test]
     fn test_camera_perspective_creation() {
-        let camera = Camera::perspective(90.0, 16.0/9.0, 0.1, 100.0);
+        let camera = Camera::perspective(90.0, 16.0 / 9.0, 0.1, 100.0);
 
-        assert_eq!(camera.aspect_ratio, 16.0/9.0);
+        assert_eq!(camera.aspect_ratio, 16.0 / 9.0);
         match camera.camera_type {
             CameraType::Perspective { fov, near, far } => {
-                assert!((fov - std::f32::consts::PI/2.0).abs() < 0.001); // 90 degrees in radians
+                assert!((fov - std::f32::consts::PI / 2.0).abs() < 0.001); // 90 degrees in radians
                 assert_eq!(near, 0.1);
                 assert_eq!(far, 100.0);
             }
@@ -114,11 +117,7 @@ mod tests {
 
         // Default camera should look down negative Z
         let view_matrix = camera.view_matrix();
-        let expected = Mat4::look_at_rh(
-            Vec3::ZERO,
-            Vec3::NEG_Z,
-            Vec3::Y,
-        );
+        let expected = Mat4::look_at_rh(Vec3::ZERO, Vec3::NEG_Z, Vec3::Y);
         assert_eq!(view_matrix, expected);
 
         // Move camera and test

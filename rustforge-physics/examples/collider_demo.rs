@@ -1,7 +1,7 @@
 //! Physics example demonstrating collider creation and properties
 
-use rustforge_physics::prelude::*;
 use glam::Vec3;
+use rustforge_physics::prelude::*;
 
 fn main() {
     println!("RustForge Physics - Collider Demo");
@@ -9,35 +9,50 @@ fn main() {
 
     // Create different collider shapes
     let shapes = vec![
-        ("Box", ColliderShape::Box {
-            half_extents: Vec3::new(1.0, 2.0, 3.0)
-        }),
-        ("Sphere", ColliderShape::Sphere {
-            radius: 2.5
-        }),
-        ("Capsule", ColliderShape::Capsule {
-            half_height: 1.0,
-            radius: 0.5
-        }),
-        ("Cylinder", ColliderShape::Cylinder {
-            half_height: 2.0,
-            radius: 1.0
-        }),
-        ("Cone", ColliderShape::Cone {
-            half_height: 1.5,
-            radius: 0.8
-        }),
+        (
+            "Box",
+            ColliderShape::Box {
+                half_extents: Vec3::new(1.0, 2.0, 3.0),
+            },
+        ),
+        ("Sphere", ColliderShape::Sphere { radius: 2.5 }),
+        (
+            "Capsule",
+            ColliderShape::Capsule {
+                half_height: 1.0,
+                radius: 0.5,
+            },
+        ),
+        (
+            "Cylinder",
+            ColliderShape::Cylinder {
+                half_height: 2.0,
+                radius: 1.0,
+            },
+        ),
+        (
+            "Cone",
+            ColliderShape::Cone {
+                half_height: 1.5,
+                radius: 0.8,
+            },
+        ),
     ];
 
     println!("Creating colliders with different shapes:");
     for (name, shape) in shapes {
-        let collider = shape.build_collider()
+        let collider = shape
+            .build_collider()
             .friction(0.5)
             .restitution(0.2)
             .build();
 
-        println!("{} collider: friction={:.1}, restitution={:.1}",
-                 name, collider.friction(), collider.restitution());
+        println!(
+            "{} collider: friction={:.1}, restitution={:.1}",
+            name,
+            collider.friction(),
+            collider.restitution()
+        );
     }
 
     // Create a convex mesh collider
@@ -56,15 +71,19 @@ fn main() {
     ];
 
     let convex_shape = ColliderShape::ConvexMesh {
-        vertices: cube_vertices
+        vertices: cube_vertices,
     };
-    let convex_collider = convex_shape.build_collider()
+    let convex_collider = convex_shape
+        .build_collider()
         .friction(0.7)
         .restitution(0.3)
         .build();
 
-    println!("Convex mesh collider: friction={:.1}, restitution={:.1}",
-             convex_collider.friction(), convex_collider.restitution());
+    println!(
+        "Convex mesh collider: friction={:.1}, restitution={:.1}",
+        convex_collider.friction(),
+        convex_collider.restitution()
+    );
 
     // Create a triangle mesh collider
     println!("\nTriangle Mesh Collider");
@@ -79,15 +98,19 @@ fn main() {
 
     let trimesh_shape = ColliderShape::TriMesh {
         vertices: triangle_vertices,
-        indices: triangle_indices
+        indices: triangle_indices,
     };
-    let trimesh_collider = trimesh_shape.build_collider()
+    let trimesh_collider = trimesh_shape
+        .build_collider()
         .friction(0.6)
         .restitution(0.1)
         .build();
 
-    println!("Triangle mesh collider: friction={:.1}, restitution={:.1}",
-             trimesh_collider.friction(), trimesh_collider.restitution());
+    println!(
+        "Triangle mesh collider: friction={:.1}, restitution={:.1}",
+        trimesh_collider.friction(),
+        trimesh_collider.restitution()
+    );
 
     // Demonstrate collider properties
     println!("\nCollider Properties");
@@ -117,4 +140,3 @@ fn main() {
     println!("  Is sensor: {}", sensor_collider.is_sensor());
     println!("  Friction: {:.1}", sensor_collider.friction());
 }
-

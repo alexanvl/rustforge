@@ -1,18 +1,36 @@
 //! Collider shapes and creation
 
-use rapier3d::prelude::*;
 use glam::Vec3;
+use rapier3d::prelude::*;
 
 /// Collider shape types
 #[derive(Debug, Clone)]
 pub enum ColliderShape {
-    Box { half_extents: Vec3 },
-    Sphere { radius: f32 },
-    Capsule { half_height: f32, radius: f32 },
-    Cylinder { half_height: f32, radius: f32 },
-    Cone { half_height: f32, radius: f32 },
-    ConvexMesh { vertices: Vec<Vec3> },
-    TriMesh { vertices: Vec<Vec3>, indices: Vec<[u32; 3]> },
+    Box {
+        half_extents: Vec3,
+    },
+    Sphere {
+        radius: f32,
+    },
+    Capsule {
+        half_height: f32,
+        radius: f32,
+    },
+    Cylinder {
+        half_height: f32,
+        radius: f32,
+    },
+    Cone {
+        half_height: f32,
+        radius: f32,
+    },
+    ConvexMesh {
+        vertices: Vec<Vec3>,
+    },
+    TriMesh {
+        vertices: Vec<Vec3>,
+        indices: Vec<[u32; 3]>,
+    },
 }
 
 impl ColliderShape {
@@ -22,28 +40,27 @@ impl ColliderShape {
             ColliderShape::Box { half_extents } => {
                 ColliderBuilder::cuboid(half_extents.x, half_extents.y, half_extents.z)
             }
-            ColliderShape::Sphere { radius } => {
-                ColliderBuilder::ball(*radius)
-            }
-            ColliderShape::Capsule { half_height, radius } => {
-                ColliderBuilder::capsule_y(*half_height, *radius)
-            }
-            ColliderShape::Cylinder { half_height, radius } => {
-                ColliderBuilder::cylinder(*half_height, *radius)
-            }
-            ColliderShape::Cone { half_height, radius } => {
-                ColliderBuilder::cone(*half_height, *radius)
-            }
+            ColliderShape::Sphere { radius } => ColliderBuilder::ball(*radius),
+            ColliderShape::Capsule {
+                half_height,
+                radius,
+            } => ColliderBuilder::capsule_y(*half_height, *radius),
+            ColliderShape::Cylinder {
+                half_height,
+                radius,
+            } => ColliderBuilder::cylinder(*half_height, *radius),
+            ColliderShape::Cone {
+                half_height,
+                radius,
+            } => ColliderBuilder::cone(*half_height, *radius),
             ColliderShape::ConvexMesh { vertices } => {
-                let points: Vec<Point<f32>> = vertices.iter()
-                    .map(|v| point![v.x, v.y, v.z])
-                    .collect();
+                let points: Vec<Point<f32>> =
+                    vertices.iter().map(|v| point![v.x, v.y, v.z]).collect();
                 ColliderBuilder::convex_hull(&points).unwrap()
             }
             ColliderShape::TriMesh { vertices, indices } => {
-                let verts: Vec<Point<f32>> = vertices.iter()
-                    .map(|v| point![v.x, v.y, v.z])
-                    .collect();
+                let verts: Vec<Point<f32>> =
+                    vertices.iter().map(|v| point![v.x, v.y, v.z]).collect();
                 ColliderBuilder::trimesh(verts, indices.clone())
             }
         }
@@ -57,7 +74,7 @@ mod tests {
     #[test]
     fn test_box_collider() {
         let shape = ColliderShape::Box {
-            half_extents: Vec3::new(1.0, 2.0, 3.0)
+            half_extents: Vec3::new(1.0, 2.0, 3.0),
         };
         let collider = shape.build_collider().build();
 
@@ -69,7 +86,8 @@ mod tests {
     #[test]
     fn test_sphere_collider() {
         let shape = ColliderShape::Sphere { radius: 2.5 };
-        let collider = shape.build_collider()
+        let collider = shape
+            .build_collider()
             .friction(0.8)
             .restitution(0.3)
             .build();
@@ -82,11 +100,9 @@ mod tests {
     fn test_capsule_collider() {
         let shape = ColliderShape::Capsule {
             half_height: 1.0,
-            radius: 0.5
+            radius: 0.5,
         };
-        let collider = shape.build_collider()
-            .sensor(true)
-            .build();
+        let collider = shape.build_collider().sensor(true).build();
 
         assert!(collider.is_sensor());
     }
@@ -95,9 +111,10 @@ mod tests {
     fn test_cylinder_collider() {
         let shape = ColliderShape::Cylinder {
             half_height: 2.0,
-            radius: 1.0
+            radius: 1.0,
         };
-        let collider = shape.build_collider()
+        let collider = shape
+            .build_collider()
             .friction(0.7)
             .restitution(0.2)
             .build();
@@ -110,7 +127,7 @@ mod tests {
     fn test_cone_collider() {
         let shape = ColliderShape::Cone {
             half_height: 1.5,
-            radius: 0.8
+            radius: 0.8,
         };
         let collider = shape.build_collider().build();
 
@@ -157,7 +174,8 @@ mod tests {
     #[test]
     fn test_collider_properties() {
         let shape = ColliderShape::Sphere { radius: 1.0 };
-        let collider = shape.build_collider()
+        let collider = shape
+            .build_collider()
             .friction(0.8)
             .restitution(0.3)
             .sensor(false)

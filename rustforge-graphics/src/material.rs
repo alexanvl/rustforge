@@ -185,7 +185,10 @@ mod tests {
 
         assert_eq!(material.albedo_texture, Some("albedo.png".to_string()));
         assert_eq!(material.normal_texture, Some("normal.png".to_string()));
-        assert_eq!(material.metallic_roughness_texture, Some("metallic_roughness.png".to_string()));
+        assert_eq!(
+            material.metallic_roughness_texture,
+            Some("metallic_roughness.png".to_string())
+        );
 
         // Test clearing textures
         material.albedo_texture = None;

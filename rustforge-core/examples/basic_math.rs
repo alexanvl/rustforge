@@ -37,15 +37,21 @@ fn main() {
     println!("=======================");
 
     let mut time = Time::new();
-    println!("Initial time - Delta: {:.3}s, Total: {:.3}s",
-             time.delta_seconds(), time.elapsed_seconds());
+    println!(
+        "Initial time - Delta: {:.3}s, Total: {:.3}s",
+        time.delta_seconds(),
+        time.elapsed_seconds()
+    );
 
     // Simulate some time passing
     std::thread::sleep(std::time::Duration::from_millis(100));
     time.update();
 
-    println!("After 100ms - Delta: {:.3}s, Total: {:.3}s",
-             time.delta_seconds(), time.elapsed_seconds());
+    println!(
+        "After 100ms - Delta: {:.3}s, Total: {:.3}s",
+        time.delta_seconds(),
+        time.elapsed_seconds()
+    );
 
     // Test fixed timestep
     println!("\nFixed Timestep Example");
@@ -65,6 +71,8 @@ fn main() {
         }
     }
 
-    println!("Performed {} fixed updates over 10 iterations", fixed_updates);
+    println!(
+        "Performed {} fixed updates over 10 iterations",
+        fixed_updates
+    );
 }
-

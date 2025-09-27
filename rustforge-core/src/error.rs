@@ -54,7 +54,7 @@ mod tests {
         let rustforge_err: Error = io_err.into();
 
         match rustforge_err {
-            Error::Io(_) => {}, // Expected
+            Error::Io(_) => {} // Expected
             _ => panic!("Expected Io error variant"),
         }
     }
