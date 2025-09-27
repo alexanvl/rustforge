@@ -8,6 +8,8 @@ pub mod material;
 pub mod camera;
 pub mod components;
 pub mod systems;
+pub mod debug_hud;
+pub mod text;
 
 pub use renderer::Renderer;
 pub use camera::Camera;
@@ -20,4 +22,6 @@ pub mod prelude {
     pub use super::material::Material;
     pub use super::components::*;
     pub use super::systems::*;
+    pub use super::debug_hud::{DebugHud, DebugInfo, FpsCounter};
+    pub use super::text::{TextRenderer, TextVertex};
 }

@@ -12,9 +12,12 @@ rustforge-core = { path = "../../rustforge-core" }
 rustforge-graphics = { path = "../../rustforge-graphics" }
 rustforge-input = { path = "../../rustforge-input" }
 
-winit = "0.28"
-wgpu = "0.15"
+winit = { workspace = true }
+wgpu = { workspace = true }
 pollster = "0.3"
-glam = "0.24"
-env_logger = "0.10"
-bytemuck = "1.23"
+raw-window-handle = "0.6"
+glam = { workspace = true }
+env_logger = { workspace = true }
+bytemuck = { workspace = true }
+
+# For text rendering (using custom implementation)

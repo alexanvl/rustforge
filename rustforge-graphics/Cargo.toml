@@ -21,6 +21,15 @@ bytemuck = { workspace = true }
 log = { workspace = true }
 thiserror = { workspace = true }
 pixels = { workspace = true }
+wgpu = { workspace = true }
+fontdue = "0.8"
+
+# Dependencies for examples
+[dev-dependencies]
+winit = { workspace = true }
+pollster = "0.3"
+raw-window-handle = "0.5"
+env_logger = { workspace = true }
 
 [features]
 default = []

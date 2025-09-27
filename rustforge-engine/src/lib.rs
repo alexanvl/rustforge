@@ -4,8 +4,8 @@ use std::sync::Arc;
 use winit::{
     event::{Event, WindowEvent, ElementState},
     event_loop::{ControlFlow, EventLoop},
-    window::{Window, WindowBuilder},
-    keyboard::{KeyCode, PhysicalKey},
+    window::Window,
+    keyboard::KeyCode,
 };
 use specs::WorldExt;
 
@@ -38,11 +38,12 @@ impl Engine {
 
         // Create window
         let window = Arc::new(
-            WindowBuilder::new()
-                .with_title("RustForge Engine")
-                .with_inner_size(winit::dpi::LogicalSize::new(1280, 720))
-                .build(event_loop)
-                .map_err(|e| Error::Init(format!("Failed to create window: {}", e)))?
+            event_loop.create_window(
+                winit::window::WindowAttributes::default()
+                    .with_title("RustForge Engine")
+                    .with_inner_size(winit::dpi::LogicalSize::new(1280, 720))
+            )
+            .map_err(|e| Error::Init(format!("Failed to create window: {}", e)))?
         );
 
         // Initialize subsystems
@@ -95,18 +96,15 @@ impl Engine {
                 Event::WindowEvent { event, .. } => {
                     self.handle_window_event(event);
                 }
-                Event::AboutToWait => {
+                Event::NewEvents(_) => {
                     if self.running {
                         self.update();
                         self.render();
-                    } else {
-                        event_loop_window_target.exit();
                     }
                 }
                 _ => {}
             }
-        })
-        .unwrap();
+        });
     }
 
     /// Handle window events
@@ -116,7 +114,7 @@ impl Engine {
                 self.running = false;
             }
             WindowEvent::KeyboardInput { event, .. } => {
-                if let PhysicalKey::Code(key) = event.physical_key {
+                if let winit::keyboard::PhysicalKey::Code(key) = event.physical_key {
                     self.input_state.handle_keyboard(key, event.state);
 
                     // ESC to quit

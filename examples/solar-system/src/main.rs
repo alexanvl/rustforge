@@ -2,20 +2,24 @@
 //! This demonstrates proper instanced rendering, orbital physics, and lighting
 
 use winit::{
-    event::{Event, WindowEvent, ElementState, MouseButton, VirtualKeyCode as KeyCode},
+    event::{Event, WindowEvent, ElementState, MouseButton},
     event_loop::{ControlFlow, EventLoop},
-    window::{Window, WindowBuilder},
+    window::Window,
     dpi::LogicalSize,
+    keyboard::KeyCode,
+    raw_window_handle::{HasWindowHandle, HasDisplayHandle},
 };
 use wgpu::util::DeviceExt;
 use rustforge_core::prelude::*;
 use rustforge_graphics::prelude::*;
-use glam::{Vec3, Vec2, Mat4, Quat};
+use glam::{Vec3, Mat4, Quat};
 use std::time::Instant;
+use std::sync::Arc;
 use bytemuck::{Pod, Zeroable};
 
 const WIDTH: u32 = 800;
 const HEIGHT: u32 = 600;
+
 
 #[repr(C)]
 #[derive(Copy, Clone, Debug, Pod, Zeroable)]
@@ -45,6 +49,7 @@ struct InstanceData {
     emissive: f32,
 }
 
+
 struct Planet {
     position: Vec3,
     radius: f32,
@@ -54,10 +59,10 @@ struct Planet {
     emissive: bool,
 }
 
-struct SolarSystemDemo {
-    surface: wgpu::Surface,
-    device: wgpu::Device,
-    queue: wgpu::Queue,
+struct SolarSystemDemo<'a> {
+    surface: wgpu::Surface<'a>,
+    device: Arc<wgpu::Device>,
+    queue: Arc<wgpu::Queue>,
     config: wgpu::SurfaceConfiguration,
     render_pipeline: wgpu::RenderPipeline,
     vertex_buffer: wgpu::Buffer,
@@ -74,18 +79,35 @@ struct SolarSystemDemo {
     camera_speed: f32,
     mouse_sensitivity: f32,
     input_state: rustforge_input::InputState,
+
+    // Debug HUD
+    debug_hud: DebugHud,
+    text_renderer: TextRenderer,
 }
 
-impl SolarSystemDemo {
-    async fn new(window: &Window) -> Result<Self> {
+impl<'a> SolarSystemDemo<'a> {
+    async fn new(window: &'a Window) -> Result<Self> {
         // Create wgpu instance
-        let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
-            backends: wgpu::Backends::all(),
-            ..Default::default()
-        });
+        let instance = wgpu::Instance::new(wgpu::InstanceDescriptor::default());
 
-        let surface = unsafe { instance.create_surface(&window) }
-            .map_err(|e| Error::Graphics(format!("Failed to create surface: {}", e)))?;
+        // Create surface - try the simple approach first
+        let surface = match instance.create_surface(window) {
+            Ok(surface) => surface,
+            Err(_) => {
+                // Fallback: try unsafe surface creation
+                println!("Using fallback surface creation...");
+                let raw_window_handle = window.window_handle()
+                    .map_err(|e| Error::Graphics(format!("Failed to get window handle: {:?}", e)))?;
+                let raw_display_handle = window.display_handle()
+                    .map_err(|e| Error::Graphics(format!("Failed to get display handle: {:?}", e)))?;
+                unsafe {
+                    instance.create_surface_unsafe(wgpu::SurfaceTargetUnsafe::RawHandle {
+                        raw_display_handle: raw_display_handle.as_raw(),
+                        raw_window_handle: raw_window_handle.as_raw(),
+                    })
+                }.map_err(|e| Error::Graphics(format!("Failed to create surface: {}", e)))?
+            }
+        };
 
         let adapter = instance
             .request_adapter(&wgpu::RequestAdapterOptions {
@@ -99,14 +121,18 @@ impl SolarSystemDemo {
         let (device, queue) = adapter
             .request_device(
                 &wgpu::DeviceDescriptor {
-                    features: wgpu::Features::empty(),
-                    limits: wgpu::Limits::default(),
+                    required_features: wgpu::Features::empty(),
+                    required_limits: wgpu::Limits::default(),
                     label: None,
+                    memory_hints: Default::default(),
                 },
                 None,
             )
             .await
             .map_err(|e| Error::Graphics(format!("Failed to create device: {}", e)))?;
+
+        let device = Arc::new(device);
+        let queue = Arc::new(queue);
 
         let surface_caps = surface.get_capabilities(&adapter);
         let surface_format = surface_caps.formats[0];
@@ -120,8 +146,13 @@ impl SolarSystemDemo {
             present_mode: surface_caps.present_modes[0],
             alpha_mode: surface_caps.alpha_modes[0],
             view_formats: vec![],
+            desired_maximum_frame_latency: 2,
         };
         surface.configure(&device, &config);
+
+        // Load font data and create text renderer
+        let font_data = include_bytes!("../../../rustforge-graphics/assets/Geneva.ttf");
+        let text_renderer = TextRenderer::new_with_font(&device, &queue, config.format, font_data)?;
 
         // Create sphere geometry
         let (vertices, indices) = Self::create_sphere(32, 16);
@@ -199,7 +230,8 @@ impl SolarSystemDemo {
             layout: Some(&render_pipeline_layout),
             vertex: wgpu::VertexState {
                 module: &shader,
-                entry_point: "vs_main",
+                entry_point: Some("vs_main"),
+                compilation_options: Default::default(),
                 buffers: &[
                     // Vertex buffer
                     wgpu::VertexBufferLayout {
@@ -262,7 +294,8 @@ impl SolarSystemDemo {
             },
             fragment: Some(wgpu::FragmentState {
                 module: &shader,
-                entry_point: "fs_main",
+                entry_point: Some("fs_main"),
+                compilation_options: Default::default(),
                 targets: &[Some(wgpu::ColorTargetState {
                     format: config.format,
                     blend: Some(wgpu::BlendState::REPLACE),
@@ -279,12 +312,9 @@ impl SolarSystemDemo {
                 conservative: false,
             },
             depth_stencil: None,
-            multisample: wgpu::MultisampleState {
-                count: 1,
-                mask: !0,
-                alpha_to_coverage_enabled: false,
-            },
+            multisample: wgpu::MultisampleState::default(),
             multiview: None,
+            cache: None,
         });
 
         // Create camera
@@ -369,6 +399,12 @@ impl SolarSystemDemo {
             camera_speed: 10.0,
             mouse_sensitivity: 0.002,
             input_state: rustforge_input::InputState::new(),
+
+            // Debug HUD
+            debug_hud: DebugHud::new(),
+
+            // Text renderer created earlier
+            text_renderer,
         })
     }
 
@@ -440,8 +476,8 @@ impl SolarSystemDemo {
     }
 
     fn handle_camera_movement(&mut self, delta_time: f32) {
-        let speed = if self.input_state.is_key_pressed(KeyCode::LShift) ||
-                       self.input_state.is_key_pressed(KeyCode::RShift) {
+        let speed = if self.input_state.is_key_pressed(KeyCode::ShiftLeft) ||
+                       self.input_state.is_key_pressed(KeyCode::ShiftRight) {
             self.camera_speed * 3.0 // Boost speed with shift
         } else {
             self.camera_speed
@@ -450,23 +486,23 @@ impl SolarSystemDemo {
         // Calculate movement direction
         let mut movement = Vec3::ZERO;
 
-        if self.input_state.is_key_pressed(KeyCode::W) {
+        if self.input_state.is_key_pressed(KeyCode::KeyW) {
             movement += self.camera.transform.forward();
         }
-        if self.input_state.is_key_pressed(KeyCode::S) {
+        if self.input_state.is_key_pressed(KeyCode::KeyS) {
             movement -= self.camera.transform.forward();
         }
-        if self.input_state.is_key_pressed(KeyCode::A) {
+        if self.input_state.is_key_pressed(KeyCode::KeyA) {
             movement -= self.camera.transform.right();
         }
-        if self.input_state.is_key_pressed(KeyCode::D) {
+        if self.input_state.is_key_pressed(KeyCode::KeyD) {
             movement += self.camera.transform.right();
         }
         if self.input_state.is_key_pressed(KeyCode::Space) {
             movement += Vec3::Y; // Move up
         }
-        if self.input_state.is_key_pressed(KeyCode::LControl) ||
-           self.input_state.is_key_pressed(KeyCode::C) {
+        if self.input_state.is_key_pressed(KeyCode::ControlLeft) ||
+           self.input_state.is_key_pressed(KeyCode::KeyC) {
             movement -= Vec3::Y; // Move down
         }
 
@@ -541,6 +577,9 @@ impl SolarSystemDemo {
         self.queue.write_buffer(&self.uniform_buffer, 0, bytemuck::cast_slice(&[uniforms]));
         self.queue.write_buffer(&self.instance_buffer, 0, bytemuck::cast_slice(&instance_data));
 
+        // Clear text renderer for new frame
+        self.text_renderer.clear();
+
         {
             let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
                 label: Some("Render Pass"),
@@ -554,10 +593,12 @@ impl SolarSystemDemo {
                             b: 0.05,
                             a: 1.0,
                         }),
-                        store: true,
+                        store: wgpu::StoreOp::Store,
                     },
                 })],
                 depth_stencil_attachment: None,
+                occlusion_query_set: None,
+                timestamp_writes: None,
             });
 
             render_pass.set_pipeline(&self.render_pipeline);
@@ -568,9 +609,30 @@ impl SolarSystemDemo {
 
             // Render all planets in one instanced draw call
             render_pass.draw_indexed(0..self.num_indices, 0, 0..self.planets.len() as u32);
+
+            // Render debug HUD text (if visible) inside the main render pass
+            if self.debug_hud.is_visible() {
+                let mut debug_info = self.debug_hud.update(
+                    self.camera.transform.position,
+                    self.camera.transform.rotation,
+                );
+
+                // Add custom debug information
+                self.debug_hud.add_custom_info(&mut debug_info, "Planets", &self.planets.len().to_string());
+                self.debug_hud.add_custom_info(&mut debug_info, "Render Mode", "GPU Instanced");
+                self.debug_hud.add_custom_info(&mut debug_info, "Lighting", "Point Light (Sun)");
+
+                // Add debug text to renderer
+                self.debug_hud.add_debug_text(&mut self.text_renderer, &debug_info);
+
+                // Render all text
+                self.text_renderer.render(&mut render_pass)?;
+            }
         }
 
+        // Submit all render commands
         self.queue.submit(std::iter::once(encoder.finish()));
+
         output.present();
 
         Ok(())
@@ -581,30 +643,35 @@ impl SolarSystemDemo {
             self.config.width = new_size.width;
             self.config.height = new_size.height;
             self.surface.configure(&self.device, &self.config);
-
+            self.text_renderer.resize(new_size.width, new_size.height);
         }
     }
 
-    async fn run(mut self, event_loop: EventLoop<()>) -> ! {
-        event_loop.run(move |event, _, control_flow| {
-            *control_flow = ControlFlow::Poll;
+    fn run(mut self, event_loop: EventLoop<()>) -> Result<()> {
+        let _ = event_loop.run(move |event, event_loop_window_target| {
+            event_loop_window_target.set_control_flow(ControlFlow::Poll);
 
             match event {
                 Event::WindowEvent { ref event, .. } => {
                     match event {
                         WindowEvent::CloseRequested => {
-                            *control_flow = ControlFlow::Exit;
+                            event_loop_window_target.exit();
                         }
                         WindowEvent::Resized(physical_size) => {
                             self.resize(*physical_size);
                         }
-                        WindowEvent::KeyboardInput { input, .. } => {
-                            if let Some(key) = input.virtual_keycode {
-                                self.input_state.handle_keyboard(key, input.state);
+                        WindowEvent::KeyboardInput { event, .. } => {
+                            if let winit::keyboard::PhysicalKey::Code(key) = event.physical_key {
+                                self.input_state.handle_keyboard(key, event.state);
 
                                 // ESC to quit
-                                if key == KeyCode::Escape && input.state == ElementState::Pressed {
-                                    *control_flow = ControlFlow::Exit;
+                                if key == KeyCode::Escape && event.state == ElementState::Pressed {
+                                    event_loop_window_target.exit();
+                                }
+
+                                // F1 to toggle debug HUD
+                                if key == KeyCode::F1 && event.state == ElementState::Pressed {
+                                    self.debug_hud.toggle_visibility();
                                 }
                             }
                         }
@@ -617,7 +684,7 @@ impl SolarSystemDemo {
                         _ => {}
                     }
                 }
-                Event::MainEventsCleared => {
+                Event::NewEvents(_) => {
                     self.update();
                     if let Err(e) = self.render() {
                         eprintln!("Render error: {}", e);
@@ -625,7 +692,8 @@ impl SolarSystemDemo {
                 }
                 _ => {}
             }
-        })
+        });
+        Ok(())
     }
 }
 
@@ -645,15 +713,20 @@ fn main() -> Result<()> {
     println!("  C/Ctrl - Move down");
     println!("  Shift - Move faster");
     println!("  Left Mouse + Drag - Look around");
+    println!("  F1 - Toggle debug HUD");
     println!("  ESC - Exit");
 
-    let event_loop = EventLoop::new();
-    let window = WindowBuilder::new()
-        .with_title("🌟 RustForge Solar System Demo")
-        .with_inner_size(LogicalSize::new(WIDTH, HEIGHT))
-        .build(&event_loop)
-        .map_err(|e| Error::Init(format!("Failed to create window: {}", e)))?;
+    let event_loop = EventLoop::new()
+        .map_err(|e| Error::Init(format!("Failed to create event loop: {:?}", e)))?;
+    let window = event_loop.create_window(
+        winit::window::WindowAttributes::default()
+            .with_title("🌟 RustForge Solar System Demo")
+            .with_inner_size(LogicalSize::new(WIDTH, HEIGHT))
+    )
+    .map_err(|e| Error::Init(format!("Failed to create window: {}", e)))?;
 
     let demo = pollster::block_on(SolarSystemDemo::new(&window))?;
-    pollster::block_on(demo.run(event_loop));
+    demo.run(event_loop)?;
+
+    Ok(())
 }
