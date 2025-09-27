@@ -3,6 +3,12 @@
 use rustforge_core::prelude::*;
 use std::sync::Arc;
 
+// Font atlas constants
+const CHARS_PER_ROW: u32 = 16;
+const CHAR_WIDTH: u32 = 24;
+const CHAR_HEIGHT: u32 = 32;
+const ATLAS_ROWS: u32 = 8;
+
 /// 2D text renderer using fontdue for proper font rendering
 pub struct TextRenderer {
     device: Arc<wgpu::Device>,
@@ -52,12 +58,8 @@ impl TextRenderer {
 
         // Create font atlas texture
         let font_size = 24.0;
-        let chars_per_row: u32 = 16;
-        let rows: u32 = 8;
-        let char_width: u32 = 24;
-        let char_height: u32 = 32;
-        let texture_width = chars_per_row * char_width;
-        let texture_height = rows * char_height;
+        let texture_width = CHARS_PER_ROW * CHAR_WIDTH;
+        let texture_height = ATLAS_ROWS * CHAR_HEIGHT;
 
         let font_texture = device.create_texture(&wgpu::TextureDescriptor {
             size: wgpu::Extent3d {
@@ -80,18 +82,18 @@ impl TextRenderer {
 
                     for (i, ch) in ascii_chars.chars().enumerate() {
                         let i_u32 = i as u32;
-                        if i_u32 >= chars_per_row * rows { break; }
+                        if i_u32 >= CHARS_PER_ROW * ATLAS_ROWS { break; }
 
-                        let char_x = (i_u32 % chars_per_row) * char_width;
-                        let char_y = (i_u32 / chars_per_row) * char_height;
+                        let char_x = (i_u32 % CHARS_PER_ROW) * CHAR_WIDTH;
+                        let char_y = (i_u32 / CHARS_PER_ROW) * CHAR_HEIGHT;
 
             let (metrics, bitmap) = font.rasterize(ch, font_size);
             let bitmap_width = metrics.width as usize;
             let bitmap_height = metrics.height as usize;
 
                         // Copy bitmap to texture atlas
-                        for y in 0..bitmap_height.min(char_height as usize) {
-                            for x in 0..bitmap_width.min(char_width as usize) {
+                        for y in 0..bitmap_height.min(CHAR_HEIGHT as usize) {
+                            for x in 0..bitmap_width.min(CHAR_WIDTH as usize) {
                                 let src_idx = y * bitmap_width + x;
                                 let dst_x = char_x + x as u32;
                                 let ymin_offset = if metrics.ymin < 0 { 0 } else { metrics.ymin as u32 };
@@ -313,26 +315,17 @@ impl TextRenderer {
                 let char_x = cursor_x + metrics.xmin as f32;
                 let char_y = cursor_y + metrics.ymin as f32;
 
-                // Calculate UV coordinates in texture atlas
-                let chars_per_row = 16;
-                let char_width = 24;
-                let char_height = 32;
-
                 // Find character index in our ASCII set
                 let ascii_chars = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
-                            let char_index = ascii_chars.find(ch).unwrap_or(0) as u32;
-                            let rows: u32 = 8;
-                            let chars_per_row: u32 = 16;
-                            let char_width: u32 = 24;
-                            let char_height: u32 = 32;
+                let char_index = ascii_chars.find(ch).unwrap_or(0) as u32;
 
-                            let atlas_x = (char_index % chars_per_row) * char_width;
-                            let atlas_y = (char_index / chars_per_row) * char_height;
+                let atlas_x = (char_index % CHARS_PER_ROW) * CHAR_WIDTH;
+                let atlas_y = (char_index / CHARS_PER_ROW) * CHAR_HEIGHT;
 
-                            let uv_min_x = atlas_x as f32 / (chars_per_row * char_width) as f32;
-                            let uv_min_y = atlas_y as f32 / (rows * char_height) as f32;
-                            let uv_max_x = (atlas_x + metrics.width as u32) as f32 / (chars_per_row * char_width) as f32;
-                            let uv_max_y = (atlas_y + metrics.height as u32) as f32 / (rows * char_height) as f32;
+                let uv_min_x = atlas_x as f32 / (CHARS_PER_ROW * CHAR_WIDTH) as f32;
+                let uv_min_y = atlas_y as f32 / (ATLAS_ROWS * CHAR_HEIGHT) as f32;
+                let uv_max_x = (atlas_x + metrics.width as u32) as f32 / (CHARS_PER_ROW * CHAR_WIDTH) as f32;
+                let uv_max_y = (atlas_y + metrics.height as u32) as f32 / (ATLAS_ROWS * CHAR_HEIGHT) as f32;
 
                 // Add quad for this character
                 let base_index = self.vertices.len() as u32;

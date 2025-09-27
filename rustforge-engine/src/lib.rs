@@ -89,7 +89,7 @@ impl Engine {
 
     /// Run the engine
     pub fn run(mut self, event_loop: EventLoop<()>) {
-        event_loop.run(move |event, event_loop_window_target| {
+        let _ = event_loop.run(move |event, event_loop_window_target| {
             event_loop_window_target.set_control_flow(ControlFlow::Poll);
 
             match event {

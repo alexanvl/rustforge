@@ -10,7 +10,7 @@ const WIDTH: usize = 60;
 const HEIGHT: usize = 20;
 
 struct PhysicsDemo {
-    physics_world: PhysicsWorld,
+    _physics_world: PhysicsWorld,
     entities: Vec<PhysicsEntity>,
     time: Instant,
     last_update: Instant,
@@ -20,7 +20,7 @@ struct PhysicsDemo {
 struct PhysicsEntity {
     position: Vec3,
     velocity: Vec3,
-    size: f32,
+    _size: f32,
     char: char,
 }
 
@@ -40,13 +40,13 @@ impl PhysicsDemo {
                     0.0,
                     0.0,
                 ),
-                size: 0.5 + (i as f32 * 0.1),
+                _size: 0.5 + (i as f32 * 0.1),
                 char: chars[i % chars.len()],
             });
         }
 
         Self {
-            physics_world,
+            _physics_world: physics_world,
             entities,
             time: Instant::now(),
             last_update: Instant::now(),

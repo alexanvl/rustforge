@@ -7,7 +7,6 @@ use rustforge_graphics::prelude::*;
 use winit::{
     event::{Event, WindowEvent, ElementState},
     event_loop::{ControlFlow, EventLoop},
-    window::Window,
     dpi::LogicalSize,
     keyboard::KeyCode,
     raw_window_handle::{HasWindowHandle, HasDisplayHandle},
